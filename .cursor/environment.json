@@ -7,5 +7,5 @@
       "command": "pnpm --filter @pulse/web dev"
     }
   ],
-  "ports": [3000]
+  "ports": [{ "name": "web", "port": 3000 }]
 }
