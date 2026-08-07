@@ -239,9 +239,10 @@ export function observe(
     return undefined;
   }
   device.lastObservedAt = at;
-  device.status = "online";
-  device.aligned = true;
-  delete device.reason;
+  if (!device.reason) {
+    device.status = "online";
+    device.aligned = true;
+  }
   return device;
 }
 

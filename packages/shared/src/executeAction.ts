@@ -54,6 +54,10 @@ export function executeAction<T extends ActionType>(
 ): ProofReceipt {
   const base = { id: receiptId(action.type, at), action: action.type, at };
 
+  if (!action.payload) {
+    return { ...base, ok: false, detail: "Missing action payload" };
+  }
+
   switch (action.type) {
     case "observe": {
       const { deviceId } = action.payload as ActionPayloadMap["observe"];
