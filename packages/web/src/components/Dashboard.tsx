@@ -45,16 +45,20 @@ export default function Dashboard({ initialDevices, zones, projects }: Props) {
       });
       const json = (await res.json()) as { receipt?: ProofReceipt; devices?: HouseSystem[]; error?: string };
       if (!res.ok) {
-        setReceipts((prev) => [
-          {
-            id: `rcpt_error_${Date.now()}`,
-            action: "observe",
-            ok: false,
-            at: new Date().toISOString(),
-            detail: json.error ?? `Request failed with status ${res.status}`,
-          },
-          ...prev,
-        ]);
+        if (json.receipt) {
+          setReceipts((prev) => [json.receipt!, ...prev].slice(0, 20));
+        } else {
+          setReceipts((prev) => [
+            {
+              id: `rcpt_error_${Date.now()}`,
+              action: "observe",
+              ok: false,
+              at: new Date().toISOString(),
+              detail: json.error ?? `Request failed with status ${res.status}`,
+            },
+            ...prev,
+          ]);
+        }
         return;
       }
       if (json.receipt) {

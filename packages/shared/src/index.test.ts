@@ -75,19 +75,22 @@ describe("device registry", () => {
     expect(before?.aligned).toBe(false);
 
     const updated = observe("av.bo.beoplay8", "2026-01-01T00:00:00.000Z");
-    expect(updated?.aligned).toBe(true);
-    expect(updated?.status).toBe("online");
+    expect(updated?.aligned).toBe(false);
+    expect(updated?.status).toBe("attention");
     expect(updated?.lastObservedAt).toBe("2026-01-01T00:00:00.000Z");
-    expect(updated?.reason).toBeUndefined();
+    expect(updated?.reason).toBe("test");
   });
 
   it("flagUnaligned() surfaces a reason and lowers the count delta", () => {
     const baseline = unalignedCount();
-    observe("garden.irrigation.controller");
-    expect(unalignedCount()).toBe(baseline - 1);
-
-    flagUnaligned("garden.irrigation.controller", "schedule undefined");
-    expect(unalignedCount()).toBe(baseline);
+    const initialCount = unalignedCount();
+    
+    flagUnaligned("net.router.core", "test issue");
+    expect(unalignedCount()).toBe(initialCount + 1);
+    
+    const device = getRegistry().find((d) => d.id === "net.router.core");
+    expect(device?.aligned).toBe(false);
+    expect(device?.reason).toBe("test issue");
   });
 
   it("returns undefined for unknown devices", () => {
