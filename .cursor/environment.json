@@ -1,0 +1,11 @@
+{
+  "name": "PULSE — Sovereign Home OS",
+  "install": "pnpm install --frozen-lockfile",
+  "terminals": [
+    {
+      "name": "web",
+      "command": "pnpm --filter @pulse/web dev"
+    }
+  ],
+  "ports": [3000]
+}
