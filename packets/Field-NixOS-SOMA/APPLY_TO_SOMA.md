@@ -1,21 +1,35 @@
-# Apply this packet to nexus-infinity/Field-NixOS-SOMA
+# Apply Android → SOMA (overall intention)
 
-Cloud agent token could **read** Field-NixOS-SOMA but got **403 on push** (2026-08-15).
-This packet is the seated SOMA Suite Android home — apply on a seat with write access (Mac Studio / green desk with gh auth as JB).
+**Governor does not need to babysit steps.** On Mac Studio (green desk), run one script:
 
 ```bash
-cd /path/to/Field-NixOS-SOMA
-git checkout -b cursor/soma-android-suite-home-684b
-cp -R /path/to/pulse/packets/Field-NixOS-SOMA/suite/android ./suite/
-# append AGENTS snippet from AGENTS.md.APPEND_SNIPPET.md (SOMA Suite section only)
-mkdir -p .vscode && cp packets/.../vscode.settings.json .vscode/settings.json
-# allow .vscode/settings.json in .gitignore via negation
-chmod +x suite/android/migration/studio_android_to_soma_weaver.sh
-git add suite .vscode AGENTS.md .gitignore
-git commit -m "feat(suite/android): seat SOMA Suite home for Mac Studio Android migration"
-git push -u origin cursor/soma-android-suite-home-684b
-# then run weaver on Studio:
-./suite/android/migration/studio_android_to_soma_weaver.sh
+mkdir -p ~/FIELD-SOMA-WORK
+git clone https://github.com/nexus-infinity/pulse.git ~/FIELD-SOMA-WORK/pulse
+cd ~/FIELD-SOMA-WORK/pulse
+git fetch && git checkout cursor/soma-android-suite-packet-684b
+chmod +x packets/Field-NixOS-SOMA/ONE_SHOT_STUDIO_APPLY_AND_WEAVE.sh
+./packets/Field-NixOS-SOMA/ONE_SHOT_STUDIO_APPLY_AND_WEAVE.sh
 ```
 
-Residence: teal SOMA. Mandela lines stay open.
+That script:
+1. Clones/updates Field-NixOS-SOMA
+2. Copies `suite/android/` home + teal Cursor colours + AGENTS snippet
+3. Pushes branch `cursor/soma-android-suite-home-684b`
+4. Runs Do–Re–Mi weaver (Gate1 re-witness + rsync KITT/Sonoc + receipts + DOJO pointer)
+
+Optional later (after PR merge + backup check):
+
+```bash
+MOVE_MODE=replace ./suite/android/migration/studio_android_to_soma_weaver.sh
+```
+
+## Why cloud agent stopped at seating
+
+- Cloud = office across town; no `/Users/jbear`
+- Token can push `pulse`, **403** on `Field-NixOS-SOMA`
+- Matrix law: do not claim content move DONE without Studio receipts
+
+## Linear
+
+- Epic: BER-63
+- Mandela: FIELD Mandela Highest Residence V0
