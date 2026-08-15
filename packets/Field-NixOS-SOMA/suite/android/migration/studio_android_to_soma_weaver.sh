@@ -96,21 +96,36 @@ stage_do() {
     git checkout -B "$BRANCH"
   fi
   # Refresh weaver + HOLD register from this script's directory when invoked from pulse packet
-  local self_dir
+  local self_dir self_weaver dest_weaver hold_src
   self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  self_weaver="$self_dir/studio_android_to_soma_weaver.sh"
+  dest_weaver="$SOMA_CLONE/suite/android/migration/studio_android_to_soma_weaver.sh"
   mkdir -p suite/android/migration
-  if [[ -f "$self_dir/studio_android_to_soma_weaver.sh" ]]; then
-    cp -a "$self_dir/studio_android_to_soma_weaver.sh" suite/android/migration/studio_android_to_soma_weaver.sh
-    chmod +x suite/android/migration/studio_android_to_soma_weaver.sh
+  # macOS `cp` exits non-zero when src and dest are the same inode — that aborted reclaim under set -e
+  if [[ -f "$self_weaver" ]]; then
+    if [[ "$(realpath "$self_weaver" 2>/dev/null || echo "$self_weaver")" != "$(realpath "$dest_weaver" 2>/dev/null || echo "$dest_weaver")" ]]; then
+      cp -a "$self_weaver" "$dest_weaver"
+    fi
+    chmod +x "$dest_weaver"
   fi
-  if [[ -f "$self_dir/../UNKNOWN_HOLD_REGISTER.md" ]]; then
-    cp -a "$self_dir/../UNKNOWN_HOLD_REGISTER.md" suite/android/UNKNOWN_HOLD_REGISTER.md
+  hold_src="$self_dir/../UNKNOWN_HOLD_REGISTER.md"
+  if [[ -f "$hold_src" ]]; then
+    if [[ "$(realpath "$hold_src" 2>/dev/null || echo "$hold_src")" != "$(realpath suite/android/UNKNOWN_HOLD_REGISTER.md 2>/dev/null || echo "$SOMA_CLONE/suite/android/UNKNOWN_HOLD_REGISTER.md")" ]]; then
+      cp -a "$hold_src" suite/android/UNKNOWN_HOLD_REGISTER.md
+    fi
   fi
   RECEIPT_DIR="$SOMA_CLONE/suite/android/migration/receipts"
   mkdir -p "$RECEIPT_DIR" \
     "$SOMA_CLONE/suite/android/apps" \
     "$SOMA_CLONE/suite/android/lab"
   : >"$RECEIPT_DIR/HOLDS_${TS}.txt"
+  # Reclaim must not run on a reset suite-home tip that lacks ingested trees
+  if [[ "${MOVE_MODE:-pointer}" == "replace" ]]; then
+    if [[ ! -f suite/android/apps/PULSE-Android/App.tsx ]] && [[ ! -d suite/android/lab/SonocScrewDriver/app ]]; then
+      die "HOLD.ReclaimBlockedMissingSomaTrees — reset to origin/${BRANCH} (tip with ingested apps) before MOVE_MODE=replace. Example: git fetch && git reset --hard origin/${BRANCH}"
+    fi
+    log "MOVE_MODE=replace — reclaim armed (SOMA trees present)"
+  fi
   log "SOMA clone: $SOMA_CLONE"
   log "Receipt dir: $RECEIPT_DIR"
   log "local_FIELD: $FIELD_HOME  (jbear ≠ FIELD)"

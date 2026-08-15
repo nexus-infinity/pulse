@@ -47,16 +47,27 @@ chmod +x packets/Field-NixOS-SOMA/ONE_SHOT_STUDIO_APPLY_AND_WEAVE.sh
 ./packets/Field-NixOS-SOMA/ONE_SHOT_STUDIO_APPLY_AND_WEAVE.sh
 ```
 
-## Phase 2 — reclaim Studio space (after content PR merged + spot-check)
+## Phase 2 — reclaim Studio space (after content tip verified on GitHub)
+
+Content tip `207a113` is on GitHub. Run reclaim from the **pulse packet weaver** (SOMA clone may still carry an older script), after hard-reset to the content-move tip:
 
 ```bash
+cd ~/FIELD-SOMA-WORK/pulse
+git pull --ff-only origin cursor/soma-android-suite-packet-684b
+
 cd ~/FIELD-SOMA-WORK/Field-NixOS-SOMA
-MOVE_MODE=replace ./suite/android/migration/studio_android_to_soma_weaver.sh
+git fetch origin
+git checkout cursor/soma-android-content-move-684b
+git reset --hard origin/cursor/soma-android-content-move-684b
+
+MOVE_MODE=replace \
+  ~/FIELD-SOMA-WORK/pulse/packets/Field-NixOS-SOMA/suite/android/migration/studio_android_to_soma_weaver.sh
 ```
 
 Only reclaim paths under `/Users/field`. jbear leftovers stay unless `FORCE_JBEAR_RECLAIM=1`.  
 `~/Library/Android` (~7.1G SDK) is a separate pin — not auto-deleted.
 
+Do **not** run `./suite/android/migration/...` from an outdated SOMA working tree that still resets onto suite-home.
 ## Studio receipt (open matrix — do not collapse)
 
 | Line | State |
