@@ -1,10 +1,21 @@
 # Apply Android → SOMA (overall intention)
 
+**Why:** seat Android development in Sovereign SOMA (GitHub-accurate) so **Mac Studio DOJO / local FIELD (`/Users/field`) frees disk** — not so Studio keeps two full trees forever.
+
 **Governor does not need to babysit steps.** On Mac Studio (green desk), run one script.
+
+## Two phases (matrix open until both have receipts)
+
+| Phase | Command effect | Disk |
+|-------|----------------|------|
+| 1 Weave | Copy PRESENT units into SOMA clone + push branch | Still doubled until phase 2 |
+| 2 Reclaim | `MOVE_MODE=replace` after SOMA PR merge + verify | Old FIELD trees → backup + stub → **space freed** |
+
+Do not claim “DOJO freed” without a `RECLAIM_*` receipt.
 
 ## Resume (after first cycle HOLD.KittSourceMissing)
 
-Suite home already pushed. Pull fixed soft-HOLD weaver and weave PRESENT units (Sonoc + local PULSE-Android):
+Suite home already pushed. Pull fixed soft-HOLD weaver and weave PRESENT units:
 
 ```bash
 cd ~/FIELD-SOMA-WORK/pulse
@@ -24,17 +35,15 @@ chmod +x packets/Field-NixOS-SOMA/ONE_SHOT_STUDIO_APPLY_AND_WEAVE.sh
 ./packets/Field-NixOS-SOMA/ONE_SHOT_STUDIO_APPLY_AND_WEAVE.sh
 ```
 
-That script:
-1. Pulls latest pulse packet branch
-2. Copies `suite/android/` home + teal Cursor colours + AGENTS snippet
-3. Pushes branch `cursor/soma-android-suite-home-684b`
-4. Runs Do–Re–Mi weaver with **soft HOLD** — missing KITT does not abort; Sonoc + local PULSE-Android weave when PRESENT
-
-Optional later (after PR merge + backup check):
+## Phase 2 — reclaim Studio space (after content PR merged + spot-check)
 
 ```bash
+cd ~/FIELD-SOMA-WORK/Field-NixOS-SOMA
 MOVE_MODE=replace ./suite/android/migration/studio_android_to_soma_weaver.sh
 ```
+
+Only reclaim paths under `/Users/field`. jbear leftovers stay unless `FORCE_JBEAR_RECLAIM=1`.  
+`~/Library/Android` (~7.1G SDK) is a separate pin — not auto-deleted.
 
 ## Studio receipt (open matrix — do not collapse)
 
@@ -46,11 +55,12 @@ MOVE_MODE=replace ./suite/android/migration/studio_android_to_soma_weaver.sh
 | PULSE-Android under `/Users/field/StudioProjects` | PRESENT |
 | Sonoc under `/Users/field` | not witnessed; leftover under jbear is cross-account only |
 | Content move DONE | **Not claimed** until weave receipts + PR |
+| DOJO disk freed | **Not claimed** until `MOVE_MODE=replace` RECLAIM receipt |
 
-## Why cloud agent cannot finish content move
+## Why cloud agent cannot finish content move / reclaim
 
 - Cloud = office across town; no Studio FS
-- Soft HOLD weaver ships via `pulse` packet; Studio executes
+- Soft HOLD weaver ships via `pulse` packet; Studio executes weave + reclaim
 
 ## Linear
 

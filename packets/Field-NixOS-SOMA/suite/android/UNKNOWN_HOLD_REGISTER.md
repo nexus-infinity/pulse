@@ -19,6 +19,8 @@ Matrix lines remain **OPEN**. Clearing a pin requires a receipt, not a narrative
 | HOLD.PulseAsAppSkuCollapse | LOCKED | PULSE ≠ warehouse for Android |
 | HOLD.SomaMatrixNotMapped | OPEN | Do not clear via Android moves alone |
 | HOLD.JbearIsNotLocalField | LOCKED | Never treat `/Users/jbear` as FIELD desk |
+| HOLD.DojoDiskReclaimPending | OPEN | Intention: SOMA home frees Studio DOJO space — clear only with `RECLAIM_*` after `MOVE_MODE=replace` |
+| HOLD.SyncDoesNotFreeDisk | LOCKED | Phase-1 rsync doubles until replace; do not claim free space after weave alone |
 
 ## Migration / inventory
 

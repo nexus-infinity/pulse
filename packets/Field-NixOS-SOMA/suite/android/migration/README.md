@@ -2,7 +2,9 @@
 
 ## Intention
 
-Move Mac Studio Android estate into `Field-NixOS-SOMA/suite/android/` without collapsing Mandela matrix lines into a fake “done.”
+Move Mac Studio Android estate into `Field-NixOS-SOMA/suite/android/` so **local FIELD DOJO can reclaim disk**, without collapsing Mandela matrix lines into a fake “done.”
+
+Phase 1 = weave to SOMA (GitHub). Phase 2 = `MOVE_MODE=replace` stubs old `/Users/field` trees (backup first). Sync alone does **not** free space.
 
 ## Soft HOLD law
 
@@ -32,9 +34,11 @@ cd ~/FIELD-SOMA-WORK/Field-NixOS-SOMA
 chmod +x suite/android/migration/studio_android_to_soma_weaver.sh
 ./suite/android/migration/studio_android_to_soma_weaver.sh
 
-# After PR merged + backup verified — optional replace DOJO tree with stub only:
+# After PR merged + backup verified — reclaim Studio DOJO disk:
 MOVE_MODE=replace ./suite/android/migration/studio_android_to_soma_weaver.sh
 ```
+
+Clear `HOLD.DojoDiskReclaimPending` only when `migration/receipts/RECLAIM_*` shows replaced FIELD trees.
 
 Dry run:
 

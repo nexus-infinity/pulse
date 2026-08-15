@@ -7,6 +7,7 @@
 #   Local FIELD desk  = /Users/field/   ← THIS is local FIELD (Unix user field)
 #   /Users/jbear/     ≠ local FIELD     ← other account / historical Klaus residue only
 # Soft HOLD: missing one unit does NOT abort — weave what is PRESENT under field first.
+# WHY: GitHub-accurate SOMA home so Mac Studio DOJO can reclaim disk (not keep two full trees).
 # Residence: teal SOMA · not slate Pulse · not green DOJO destination.
 #
 # Studio receipt 2026-08-15T083118Z (macstudio.local, user field):
@@ -288,36 +289,85 @@ stage_fa() {
 }
 
 stage_sol() {
-  log "=== Sol — DOJO stub pointer (only if KITT source existed) ==="
-  if [[ -z "$KITT_SRC" || ! -d "$KITT_SRC" ]]; then
-    log "skip stub — no KITT source path"
-    return 0
-  fi
+  log "=== Sol — reclaim DOJO/FIELD local trees after SOMA sync (space intention) ==="
+  # Intention: Android development lives in SOMA (GitHub) → free Mac Studio DOJO disk.
+  # pointer (default): leave sources; write MOVED_TO_SOMA_SUITE.md beside them.
+  # MOVE_MODE=replace: only for sources under FIELD_HOME; backup then stub (never touch jbear unless FORCE_JBEAR_RECLAIM=1).
   if [[ "$DRY_RUN" == "1" ]]; then
-    log "DRY_RUN=1 — skip stub write"
+    log "DRY_RUN=1 — skip stub/reclaim"
     return 0
   fi
-  local TEMPLATE STUB_FILE
+  local TEMPLATE
   TEMPLATE="$SOMA_CLONE/suite/android/migration/DOJO_STUB_README.md"
-  STUB_FILE="$KITT_SRC/MOVED_TO_SOMA_SUITE.md"
   if [[ ! -f "$TEMPLATE" ]]; then
     hold "HOLD.DojoStubTemplateMissing"
     return 0
   fi
-  if [[ "${MOVE_MODE:-pointer}" == "replace" ]]; then
-    local BACKUP DEST_KITT
-    DEST_KITT="$SOMA_CLONE/suite/android/apps/kitt-arkadas-android"
-    BACKUP="$HOME/FIELD-ANDROID-BACKUPS/kitt-arkadas-android-pre-soma-${TS}"
-    mkdir -p "$HOME/FIELD-ANDROID-BACKUPS"
-    if [[ -d "$DEST_KITT" ]] && [[ "$(cd "$KITT_SRC" && pwd)" != "$(cd "$DEST_KITT" && pwd)" ]]; then
-      mv "$KITT_SRC" "$BACKUP"
-      mkdir -p "$KITT_SRC"
-      cp "$TEMPLATE" "$KITT_SRC/README.md"
-      echo "REPLACED DOJO path with stub; backup at $BACKUP" | tee "$RECEIPT_DIR/DOJO_STUB_${TS}.txt"
+
+  reclaim_or_pointer() {
+    local src="$1" dest="$2" label="$3" stub_name="$4"
+    [[ -n "$src" && -d "$src" && -d "$dest" ]] || return 0
+    # Refuse reclaim outside local FIELD unless forced
+    if [[ "$src" != "$FIELD_HOME"* ]]; then
+      if [[ "${FORCE_JBEAR_RECLAIM:-0}" != "1" ]]; then
+        hold "HOLD.ReclaimSkippedNonFieldSource label=$label path=$src (not under $FIELD_HOME)"
+        return 0
+      fi
     fi
-  else
-    cp "$TEMPLATE" "$STUB_FILE"
-    echo "POINTER stub written: $STUB_FILE (source retained until MOVE_MODE=replace)" | tee "$RECEIPT_DIR/DOJO_STUB_${TS}.txt"
+    local src_pwd dest_pwd
+    src_pwd="$(cd "$src" && pwd)"
+    dest_pwd="$(cd "$dest" && pwd)"
+    if [[ "$src_pwd" == "$dest_pwd" ]]; then
+      hold "HOLD.ReclaimSamePath label=$label — src is already SOMA dest"
+      return 0
+    fi
+    local before_human
+    before_human="$(du -sh "$src" 2>/dev/null | awk '{print $1}')"
+    if [[ "${MOVE_MODE:-pointer}" == "replace" ]]; then
+      local BACKUP
+      BACKUP="$FIELD_HOME/FIELD-ANDROID-BACKUPS/${stub_name}-pre-soma-${TS}"
+      mkdir -p "$FIELD_HOME/FIELD-ANDROID-BACKUPS"
+      mv "$src" "$BACKUP"
+      mkdir -p "$src"
+      {
+        echo "# $label — MOVED to Sovereign SOMA Field"
+        echo
+        echo "Local FIELD desk reclaimed this path so Mac Studio DOJO can free space."
+        echo
+        echo "## New home"
+        echo
+        echo '```text'
+        echo "nexus-infinity/Field-NixOS-SOMA"
+        echo "  ${dest#"$SOMA_CLONE"/}"
+        echo '```'
+        echo
+        echo "Backup of former tree: $BACKUP"
+        echo "Residence: teal SOMA · build distance-built · GitHub is durable home"
+        echo
+        echo "See suite/android/migration/DOJO_STUB_README.md in the SOMA repo."
+      } >"$src/README.md"
+      echo "RECLAIMED $label size_was=$before_human backup=$BACKUP stub=$src" | tee -a "$RECEIPT_DIR/RECLAIM_${TS}.txt"
+    else
+      cp "$TEMPLATE" "$src/MOVED_TO_SOMA_SUITE.md"
+      echo "POINTER $label size_still_local=$before_human path=$src (MOVE_MODE=replace to reclaim disk)" | tee -a "$RECEIPT_DIR/RECLAIM_${TS}.txt"
+      hold "HOLD.DojoDiskReclaimPending label=$label size=$before_human — still on Studio until MOVE_MODE=replace"
+    fi
+  }
+
+  : >"$RECEIPT_DIR/RECLAIM_${TS}.txt"
+  reclaim_or_pointer "$KITT_SRC" \
+    "$SOMA_CLONE/suite/android/apps/kitt-arkadas-android" \
+    "KITT" "kitt-arkadas-android"
+  reclaim_or_pointer "$SONOC_SRC" \
+    "$SOMA_CLONE/suite/android/lab/SonocScrewDriver" \
+    "SONOC" "SonocScrewDriver"
+  reclaim_or_pointer "$PULSE_ANDROID_SRC" \
+    "$SOMA_CLONE/suite/android/apps/PULSE-Android" \
+    "PULSE-Android" "PULSE-Android"
+
+  if [[ "${MOVE_MODE:-pointer}" != "replace" ]]; then
+    log "Space note: sync alone does NOT free disk (two copies). After SOMA PR merge + verify:"
+    log "  MOVE_MODE=replace ./suite/android/migration/studio_android_to_soma_weaver.sh"
   fi
 }
 
@@ -392,8 +442,9 @@ stage_do2() {
     echo "next_ground:"
     echo "  - open/merge PR for $BRANCH on Field-NixOS-SOMA"
     echo "  - if KITT still ABSENT: search under /Users/field (Time Machine / external) — jbear is NOT local FIELD"
-    echo "  - MOVE_MODE=replace only after PR merged and backup verified"
-    echo "matrix: lines remain open; do not collapse to DONE without merge + KITT resolution"
+    echo "  - space: MOVE_MODE=replace after PR merge frees FIELD local trees (DOJO reclaim intention)"
+    echo "  - do NOT delete ~/Library/Android SDK cache without separate receipt (Unknown.AndroidSdkNecessityVsCache)"
+    echo "matrix: lines remain open; do not claim DOJO freed until RECLAIM_* receipt with MOVE_MODE=replace"
   } | tee "$RECEIPT_DIR/NEW_GROUND_${TS}.txt"
   log "DONE weaver cycle. Receipts in $RECEIPT_DIR"
   if [[ "$HOLD_ANY" -eq 1 ]]; then

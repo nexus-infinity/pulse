@@ -3,13 +3,15 @@
 **Residence:** Sovereign SOMA Field (teal)  
 **Parent Mandala:** FIELD Mandela Highest Residence V0 — DOJO · SOMA · PULSE  
 **Nature:** Synthetic homeostatic intelligence — embodiment surfaces, not the organism definition  
-**Build mode:** Distance-built from Mac Studio / Cursor; **GitHub is durable accurate home**
+**Build mode:** Distance-built from Mac Studio / Cursor; **GitHub is durable accurate home**  
+**Space intention:** Moving Android here **frees Mac Studio DOJO / local FIELD disk** after `MOVE_MODE=replace` — sync alone does not.
 
 ```text
 This folder is the GitHub home for Android-affine SOMA Suite work.
 It is NOT Field-PULSE (slate).
 It is NOT DOJO Field (green).
 It does NOT require developing inside NixOS day-to-day.
+Local FIELD desk = /Users/field/  (jbear ≠ FIELD).
 ```
 
 ## Layout
