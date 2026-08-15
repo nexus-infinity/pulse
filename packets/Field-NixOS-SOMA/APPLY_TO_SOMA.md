@@ -62,12 +62,12 @@ Only reclaim paths under `/Users/field`. jbear leftovers stay unless `FORCE_JBEA
 | Line | State |
 |------|-------|
 | Suite home push | PASS (`cursor/soma-android-suite-home-684b`) |
+| Content move tip | PASS `207a113` on `cursor/soma-android-content-move-684b` (force-with-lease over gitlink) |
+| PULSE-Android on GitHub | PASS normal tree (`App.tsx` present; 0 gitlinks) |
+| Sonoc on GitHub | PASS real lab tree |
 | Local FIELD desk | `/Users/field/` (LOCKED — jbear is NOT FIELD) |
 | KITT under `/Users/field` | ABSENT → HOLD |
-| PULSE-Android under `/Users/field/StudioProjects` | PRESENT |
-| Sonoc under `/Users/field` | not witnessed; leftover under jbear is cross-account only |
-| Content move DONE | **Not claimed** until weave receipts + PR |
-| DOJO disk freed | **Not claimed** until `MOVE_MODE=replace` RECLAIM receipt |
+| DOJO disk freed | **Not claimed** until PR merge + `MOVE_MODE=replace` RECLAIM receipt |
 
 ## Why cloud agent cannot finish content move / reclaim
 

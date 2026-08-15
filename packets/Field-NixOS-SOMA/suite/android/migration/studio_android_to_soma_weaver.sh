@@ -494,8 +494,24 @@ stage_ti() {
     log "DRY_RUN=1 — skip push"
     return 0
   fi
-  git push -u origin "$BRANCH"
-  echo "PUSHED origin/$BRANCH" | tee "$RECEIPT_DIR/PUSH_${TS}.txt"
+  git fetch origin
+  # Refuse to publish gitlinks
+  if git ls-files -s suite/android 2>/dev/null | grep -q '^160000'; then
+    die "gitlinks still present under suite/android — fix flatten before push"
+  fi
+  if git push -u origin "$BRANCH"; then
+    echo "PUSHED origin/$BRANCH" | tee "$RECEIPT_DIR/PUSH_${TS}.txt"
+    return 0
+  fi
+  # Diverged tip (e.g. remote has bad gitlink commit; local has flattened tree) —
+  # force-with-lease replaces remote tip only if it still matches last fetch.
+  log "non-ff push — attempting --force-with-lease to publish flattened normal trees"
+  if git push --force-with-lease -u origin "$BRANCH"; then
+    echo "PUSHED --force-with-lease origin/$BRANCH" | tee "$RECEIPT_DIR/PUSH_${TS}.txt"
+    hold "HOLD.ForceWithLeaseUsed — replaced divergent remote tip (expected for gitlink repair)"
+  else
+    die "push failed even with --force-with-lease — inspect origin/$BRANCH on Studio"
+  fi
 }
 
 stage_do2() {
