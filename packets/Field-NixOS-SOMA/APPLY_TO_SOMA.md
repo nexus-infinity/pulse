@@ -13,9 +13,9 @@
 
 Do not claim “DOJO freed” without a `RECLAIM_*` receipt.
 
-## Resume (after first cycle HOLD.KittSourceMissing)
+## Resume (after dirty-SOMA checkout abort or HOLD.KittSourceMissing)
 
-Suite home already pushed. Pull fixed soft-HOLD weaver and weave PRESENT units:
+Pull latest packet (includes auto-stash + run weaver from packet — no pre-dirty), then weave:
 
 ```bash
 cd ~/FIELD-SOMA-WORK/pulse
@@ -24,6 +24,7 @@ git pull --ff-only origin cursor/soma-android-suite-packet-684b
 WEAVE_ONLY=1 ./packets/Field-NixOS-SOMA/ONE_SHOT_STUDIO_APPLY_AND_WEAVE.sh
 ```
 
+If SOMA is still dirty from the failed attempt, the weaver now stashes it automatically before branch switch.
 ## First run (already done 2026-08-15 on macstudio.local as `field`)
 
 ```bash

@@ -72,12 +72,28 @@ stage_do() {
   fi
   cd "$SOMA_CLONE"
   git fetch origin
+  # Prior WEAVE_ONLY used to copy scripts into SOMA and leave a dirty tree — stash, don't abort.
+  if [[ -n "$(git status --porcelain 2>/dev/null)" ]]; then
+    git stash push -u -m "soma-weaver-pre-checkout-${TS}" || true
+    log "stashed dirty SOMA worktree before branch switch (stash: soma-weaver-pre-checkout-${TS})"
+  fi
   git checkout main
   git pull --ff-only origin main || true
   if git show-ref --verify --quiet "refs/remotes/origin/${SUITE_HOME_BRANCH}"; then
     git checkout -B "$BRANCH" "origin/${SUITE_HOME_BRANCH}" || git checkout -B "$BRANCH"
   else
     git checkout -B "$BRANCH"
+  fi
+  # Refresh weaver + HOLD register from this script's directory when invoked from pulse packet
+  local self_dir
+  self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  mkdir -p suite/android/migration
+  if [[ -f "$self_dir/studio_android_to_soma_weaver.sh" ]]; then
+    cp -a "$self_dir/studio_android_to_soma_weaver.sh" suite/android/migration/studio_android_to_soma_weaver.sh
+    chmod +x suite/android/migration/studio_android_to_soma_weaver.sh
+  fi
+  if [[ -f "$self_dir/../UNKNOWN_HOLD_REGISTER.md" ]]; then
+    cp -a "$self_dir/../UNKNOWN_HOLD_REGISTER.md" suite/android/UNKNOWN_HOLD_REGISTER.md
   fi
   RECEIPT_DIR="$SOMA_CLONE/suite/android/migration/receipts"
   mkdir -p "$RECEIPT_DIR" \
