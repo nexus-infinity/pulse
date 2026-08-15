@@ -32,7 +32,9 @@ Matrix lines remain **OPEN**. Clearing a pin requires a receipt, not a narrative
 | HOLD.SonocLocalReWitness | OPEN | Not under `/Users/field` yet; leftover seen under jbear AndroidStudioProjects (cross-account, not FIELD) |
 | Unknown.KittGitRemote | OPEN | No public nexus-infinity kitt repo found 2026-08-15 |
 | CONFIRMED_ABSENT.PulseAndroidRepo | CLOSED | GitHub 404 |
-| Unknown.PulseAndroidLocalRecovery | OPEN→witnessed | FIELD PRESENT `/Users/field/StudioProjects/PULSE-Android` (GitHub still absent) |
+| Unknown.PulseAndroidLocalRecovery | OPEN→witnessed | FIELD PRESENT `/Users/field/StudioProjects/PULSE-Android` ~2.6G; local remote `nexus-infinity/PULSE-Android.git`; public API still 404 |
+| HOLD.PulseAndroidGitlinkOnSoma | OPEN | Cycle 083735Z pushed mode 160000 — must re-weave as normal tree before reclaim |
+| HOLD.KittSpecOnlyUnderJbear | OPEN | Spec only: `/Users/jbear/FIELD/◼︎DOJO/KITT_ARKADAS_ANDROID_SPEC.md` — not source |
 | CONFIRMED_ABSENT.V0PulseWebRepo | CLOSED | GitHub 404 |
 | Unknown.S22CurrentHubAppIdentity | OPEN | |
 | Unknown.AndroidSdkNecessityVsCache | OPEN | FIELD PRESENT `/Users/field/Library/Android` ~7.1G |

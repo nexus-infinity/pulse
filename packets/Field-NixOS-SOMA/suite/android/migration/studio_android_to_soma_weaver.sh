@@ -267,11 +267,38 @@ rsync_unit() {
     return 0
   fi
   mkdir -p "$dest"
-  rsync -a --exclude '.gradle' --exclude 'build' --exclude '.idea' \
+  # Never copy nested .git — SOMA must own a normal tree, not a gitlink/submodule.
+  rsync -a --delete \
+    --exclude '.git' \
+    --exclude '.gradle' --exclude 'build' --exclude '.idea' \
     --exclude 'node_modules' --exclude '.cxx' \
+    --exclude 'ios/Pods' --exclude 'ios/build' \
     "$src/" "$dest/"
-  echo "MOVED_OR_SYNCED $label -> $dest" | tee "$receipt"
+  rm -rf "$dest/.git"
+  echo "MOVED_OR_SYNCED $label -> $dest (flattened; no nested .git)" | tee "$receipt"
   MOVED_ANY=1
+}
+
+# If a prior cycle committed a gitlink (mode 160000), replace with real files.
+flatten_suite_gitlinks() {
+  local path mode
+  cd "$SOMA_CLONE"
+  while read -r mode _ path; do
+    [[ "$mode" == "160000" ]] || continue
+    case "$path" in
+      suite/android/*)
+        log "FIX embedded gitlink -> normal tree: $path"
+        git rm --cached -f "$path" 2>/dev/null || true
+        rm -rf "$SOMA_CLONE/$path/.git"
+        hold "HOLD.EmbeddedGitlinkRepaired path=$path — re-ingest as normal files"
+        ;;
+    esac
+  done < <(git ls-files -s 2>/dev/null || true)
+  # Belt-and-suspenders: strip any leftover nested repos under suite/android
+  find suite/android/apps suite/android/lab -mindepth 2 -maxdepth 3 -name .git 2>/dev/null | while read -r g; do
+    log "removing nested $g"
+    rm -rf "$g"
+  done
 }
 
 stage_fa() {

@@ -13,9 +13,19 @@
 
 Do not claim “DOJO freed” without a `RECLAIM_*` receipt.
 
-## Resume (after dirty-SOMA checkout abort or HOLD.KittSourceMissing)
+## Resume — repair PULSE-Android gitlink (cycle 2026-08-15T083735Z)
 
-Pull latest packet (includes auto-stash + run weaver from packet — no pre-dirty), then weave:
+Weave completed, but `suite/android/apps/PULSE-Android` was committed as **embedded gitlink** (`160000`) — GitHub does not hold the file tree. Sonoc lab tree is real. Re-pull packet and re-weave (strips `.git`, re-adds normal files):
+
+```bash
+cd ~/FIELD-SOMA-WORK/pulse
+git pull --ff-only origin cursor/soma-android-suite-packet-684b
+WEAVE_ONLY=1 ./packets/Field-NixOS-SOMA/ONE_SHOT_STUDIO_APPLY_AND_WEAVE.sh
+```
+
+Do **not** run `MOVE_MODE=replace` until PULSE-Android shows as a normal directory tree on the SOMA branch (not a submodule).
+
+## Resume (after dirty-SOMA checkout abort or HOLD.KittSourceMissing)
 
 ```bash
 cd ~/FIELD-SOMA-WORK/pulse
@@ -24,7 +34,7 @@ git pull --ff-only origin cursor/soma-android-suite-packet-684b
 WEAVE_ONLY=1 ./packets/Field-NixOS-SOMA/ONE_SHOT_STUDIO_APPLY_AND_WEAVE.sh
 ```
 
-If SOMA is still dirty from the failed attempt, the weaver now stashes it automatically before branch switch.
+If SOMA is still dirty from a failed attempt, the weaver stashes it automatically before branch switch.
 ## First run (already done 2026-08-15 on macstudio.local as `field`)
 
 ```bash
