@@ -1,28 +1,59 @@
 #!/usr/bin/env bash
 # studio_android_to_soma_weaver.sh
 # Do–Re–Mi one-shot: Gate1 re-witness + move Android estate into Field-NixOS-SOMA suite/android
-# RUN ON MAC STUDIO (green desk). Cloud seats cannot see /Users/jbear.
+# RUN ON MAC STUDIO (green desk). Cloud seats cannot see Studio FS.
 #
 # Matrix law: do not collapse lines into outcome — emit receipts; HOLD when pins missing.
+# Soft HOLD: missing one unit does NOT abort the cycle — weave what is PRESENT.
 # Residence: teal SOMA · not slate Pulse · not green DOJO destination.
+#
+# Studio receipt 2026-08-15T083118Z (macstudio.local, user field):
+#   ABSENT  KITT at ~/◼︎DOJO/kitt-arkadas-android
+#   PRESENT Sonoc at /Users/jbear/AndroidStudioProjects/SonocScrewDriver
+#   PRESENT local PULSE-Android at ~/StudioProjects/PULSE-Android (GitHub repo CONFIRMED_ABSENT)
+#   PRESENT ~/Library/Android ~7.1G
 set -euo pipefail
 
 TS="$(date -u +%Y-%m-%dT%H%M%SZ)"
-FIELD_ROOT="${FIELD_ROOT:-/Users/jbear/FIELD}"
-KITT_SRC="${KITT_SRC:-$FIELD_ROOT/◼︎DOJO/kitt-arkadas-android}"
-SONOC_SRC="${SONOC_SRC:-/Users/jbear/AndroidStudioProjects/SonocScrewDriver}"
 SOMA_CLONE="${SOMA_CLONE:-$HOME/FIELD-SOMA-WORK/Field-NixOS-SOMA}"
 SOMA_REMOTE="${SOMA_REMOTE:-https://github.com/nexus-infinity/Field-NixOS-SOMA.git}"
 BRANCH="${BRANCH:-cursor/soma-android-content-move-684b}"
+SUITE_HOME_BRANCH="${SUITE_HOME_BRANCH:-cursor/soma-android-suite-home-684b}"
 RECEIPT_DIR=""
 DRY_RUN="${DRY_RUN:-0}"
+MOVED_ANY=0
+HOLD_ANY=0
+
+# Resolved by stage_re (first PRESENT wins unless env override)
+KITT_SRC="${KITT_SRC:-}"
+SONOC_SRC="${SONOC_SRC:-}"
+PULSE_ANDROID_SRC="${PULSE_ANDROID_SRC:-}"
 
 log() { printf '%s\n' "$*"; }
+hold() {
+  HOLD_ANY=1
+  printf 'HOLD: %s\n' "$*" >&2
+  echo "HOLD: $*" | tee -a "$RECEIPT_DIR/HOLDS_${TS}.txt" >/dev/null
+}
 die() { printf 'HOLD/FAIL: %s\n' "$*" >&2; exit 1; }
+
+first_present() {
+  local p
+  for p in "$@"; do
+    if [[ -n "$p" && -e "$p" ]]; then
+      printf '%s' "$p"
+      return 0
+    fi
+  done
+  return 1
+}
 
 need_mac() {
   [[ "$(uname -s)" == "Darwin" ]] || die "This weaver must run on Mac Studio (Darwin). Cloud seat cannot complete Gate1 Mac half."
-  [[ -d /Users/jbear ]] || die "/Users/jbear missing — wrong desk."
+  # Desk may be field (daily) or jbear (historical Klaus paths) — either is valid.
+  if [[ ! -d /Users/field && ! -d /Users/jbear ]]; then
+    die "Neither /Users/field nor /Users/jbear present — wrong desk."
+  fi
 }
 
 stage_do() {
@@ -36,9 +67,8 @@ stage_do() {
   git fetch origin
   git checkout main
   git pull --ff-only origin main || true
-  # Prefer existing suite home branch if present
-  if git show-ref --verify --quiet "refs/remotes/origin/cursor/soma-android-suite-home-684b"; then
-    git checkout -B "$BRANCH" "origin/cursor/soma-android-suite-home-684b" || git checkout -B "$BRANCH"
+  if git show-ref --verify --quiet "refs/remotes/origin/${SUITE_HOME_BRANCH}"; then
+    git checkout -B "$BRANCH" "origin/${SUITE_HOME_BRANCH}" || git checkout -B "$BRANCH"
   else
     git checkout -B "$BRANCH"
   fi
@@ -46,23 +76,73 @@ stage_do() {
   mkdir -p "$RECEIPT_DIR" \
     "$SOMA_CLONE/suite/android/apps" \
     "$SOMA_CLONE/suite/android/lab"
+  : >"$RECEIPT_DIR/HOLDS_${TS}.txt"
   log "SOMA clone: $SOMA_CLONE"
   log "Receipt dir: $RECEIPT_DIR"
+  log "operator_user: $(whoami)  HOME=$HOME"
 }
 
 stage_re() {
-  log "=== Re — ingest / re-witness ==="
+  log "=== Re — ingest / re-witness + resolve sources ==="
+  local field_home jbear_home
+  field_home="/Users/field"
+  jbear_home="/Users/jbear"
+
+  # Candidate lists (env override already set → keep)
+  local -a kitt_cands=(
+    "${KITT_SRC}"
+    "$HOME/◼︎DOJO/kitt-arkadas-android"
+    "$HOME/FIELD/◼︎DOJO/kitt-arkadas-android"
+    "$field_home/◼︎DOJO/kitt-arkadas-android"
+    "$field_home/FIELD/◼︎DOJO/kitt-arkadas-android"
+    "$jbear_home/FIELD/◼︎DOJO/kitt-arkadas-android"
+    "$jbear_home/◼︎DOJO/kitt-arkadas-android"
+  )
+  local -a sonoc_cands=(
+    "${SONOC_SRC}"
+    "$jbear_home/AndroidStudioProjects/SonocScrewDriver"
+    "$field_home/AndroidStudioProjects/SonocScrewDriver"
+    "$HOME/AndroidStudioProjects/SonocScrewDriver"
+  )
+  local -a pulse_cands=(
+    "${PULSE_ANDROID_SRC}"
+    "$HOME/StudioProjects/PULSE-Android"
+    "$field_home/StudioProjects/PULSE-Android"
+    "$jbear_home/StudioProjects/PULSE-Android"
+    "$HOME/AndroidStudioProjects/PULSE-Android"
+  )
+
+  KITT_SRC="$(first_present "${kitt_cands[@]}")" || KITT_SRC=""
+  SONOC_SRC="$(first_present "${sonoc_cands[@]}")" || SONOC_SRC=""
+  PULSE_ANDROID_SRC="$(first_present "${pulse_cands[@]}")" || PULSE_ANDROID_SRC=""
+
   {
     echo "timestamp_utc: $TS"
     echo "host: $(hostname)"
     echo "uname: $(uname -a)"
+    echo "whoami: $(whoami)"
+    echo "HOME: $HOME"
     echo
-    echo "## paths"
-    for p in "$KITT_SRC" "$SONOC_SRC" \
+    echo "## resolved sources"
+    echo "KITT_SRC=${KITT_SRC:-ABSENT}"
+    echo "SONOC_SRC=${SONOC_SRC:-ABSENT}"
+    echo "PULSE_ANDROID_SRC=${PULSE_ANDROID_SRC:-ABSENT}"
+    echo
+    echo "## path witness"
+    local p
+    for p in \
+      "$HOME/◼︎DOJO/kitt-arkadas-android" \
+      "$HOME/FIELD/◼︎DOJO/kitt-arkadas-android" \
+      "$field_home/◼︎DOJO/kitt-arkadas-android" \
+      "$jbear_home/FIELD/◼︎DOJO/kitt-arkadas-android" \
+      "$jbear_home/AndroidStudioProjects/SonocScrewDriver" \
+      "$HOME/StudioProjects/PULSE-Android" \
       "$HOME/Library/Android" \
       "$HOME/AndroidStudioProjects" \
       "$HOME/FIELD-ANDROID-BACKUPS" \
-      "$HOME/FIELD-ANDROID-SYNC"; do
+      "$HOME/FIELD-ANDROID-SYNC" \
+      "$field_home/Library/Android" \
+      "$jbear_home/Library/Android"; do
       if [[ -e "$p" ]]; then
         echo "PRESENT  $(du -sh "$p" 2>/dev/null | awk '{print $1}')  $p"
       else
@@ -70,98 +150,186 @@ stage_re() {
       fi
     done
     echo
-    echo "## find android (maxdepth 4 under FIELD)"
-    find "$FIELD_ROOT" -iname '*android*' -maxdepth 4 2>/dev/null | head -80 || true
+    echo "## find *kitt* (field + jbear homes, maxdepth 5)"
+    for root in "$field_home" "$jbear_home"; do
+      [[ -d "$root" ]] || continue
+      find "$root" \( -iname '*kitt*android*' -o -iname 'kitt-arkadas*' \) -maxdepth 5 2>/dev/null | head -40 || true
+    done
+    echo
+    echo "## find *android* under StudioProjects / AndroidStudioProjects (maxdepth 3)"
+    for root in \
+      "$HOME/StudioProjects" \
+      "$HOME/AndroidStudioProjects" \
+      "$field_home/StudioProjects" \
+      "$jbear_home/AndroidStudioProjects"; do
+      [[ -d "$root" ]] || continue
+      echo "# $root"
+      find "$root" -maxdepth 3 \( -iname '*android*' -o -iname '*sonoc*' -o -iname '*pulse*' -o -iname '*kitt*' \) 2>/dev/null | head -40 || true
+    done
   } | tee "$RECEIPT_DIR/GATE1_REWITNESS_${TS}.txt"
 }
 
 stage_mi() {
-  log "=== Mi — verify KITT coherence ==="
-  if [[ ! -d "$KITT_SRC" ]]; then
-    echo "HOLD.KittSourceMissing path=$KITT_SRC" | tee "$RECEIPT_DIR/HOLD_KITT_${TS}.txt"
-    die "KITT source missing — cannot Fa without source. Receipt written."
+  log "=== Mi — verify coherence per PRESENT unit (soft HOLD if absent) ==="
+  if [[ -z "$KITT_SRC" || ! -d "$KITT_SRC" ]]; then
+    hold "HOLD.KittSourceMissing — searched field+jbear DOJO/FIELD paths; continuing without KITT"
+  else
+    (
+      cd "$KITT_SRC"
+      {
+        echo "timestamp_utc: $TS"
+        echo "path: $KITT_SRC"
+        echo "## git remote -v"
+        git remote -v 2>/dev/null || echo "NO_GIT_OR_NO_REMOTE"
+        echo "## git status -sb"
+        git status -sb 2>/dev/null || true
+        echo "## git log -5 --oneline"
+        git log -5 --oneline 2>/dev/null || true
+      } | tee "$RECEIPT_DIR/KITT_GIT_${TS}.txt"
+    )
   fi
-  (
-    cd "$KITT_SRC"
-    {
-      echo "timestamp_utc: $TS"
-      echo "## git remote -v"
-      git remote -v 2>/dev/null || echo "NO_GIT_OR_NO_REMOTE"
-      echo "## git status -sb"
-      git status -sb 2>/dev/null || true
-      echo "## git log -5 --oneline"
-      git log -5 --oneline 2>/dev/null || true
-    } | tee "$RECEIPT_DIR/KITT_GIT_${TS}.txt"
-  )
+
+  if [[ -z "$SONOC_SRC" || ! -d "$SONOC_SRC" ]]; then
+    hold "HOLD.SonocSourceAbsent"
+  else
+    echo "OK Sonoc present: $SONOC_SRC" | tee "$RECEIPT_DIR/SONOC_OK_${TS}.txt"
+  fi
+
+  if [[ -z "$PULSE_ANDROID_SRC" || ! -d "$PULSE_ANDROID_SRC" ]]; then
+    hold "HOLD.PulseAndroidLocalAbsent (GitHub already CONFIRMED_ABSENT)"
+  else
+    (
+      cd "$PULSE_ANDROID_SRC"
+      {
+        echo "timestamp_utc: $TS"
+        echo "path: $PULSE_ANDROID_SRC"
+        echo "note: GitHub nexus-infinity/PULSE-Android CONFIRMED_ABSENT — local-only recovery"
+        echo "## git remote -v"
+        git remote -v 2>/dev/null || echo "NO_GIT_OR_NO_REMOTE"
+        echo "## git status -sb"
+        git status -sb 2>/dev/null || true
+        echo "## top entries"
+        ls -la | head -40
+      } | tee "$RECEIPT_DIR/PULSE_ANDROID_GIT_${TS}.txt"
+    )
+  fi
+}
+
+rsync_unit() {
+  local src="$1" dest="$2" label="$3" receipt="$4"
+  if [[ "$DRY_RUN" == "1" ]]; then
+    log "DRY_RUN=1 — would rsync $label: $src -> $dest"
+    return 0
+  fi
+  mkdir -p "$dest"
+  rsync -a --exclude '.gradle' --exclude 'build' --exclude '.idea' \
+    --exclude 'node_modules' --exclude '.cxx' \
+    "$src/" "$dest/"
+  echo "MOVED_OR_SYNCED $label -> $dest" | tee "$receipt"
+  MOVED_ANY=1
 }
 
 stage_fa() {
-  log "=== Fa — transform / copy into SOMA suite ==="
+  log "=== Fa — transform / copy PRESENT units into SOMA suite ==="
+  local DEST_KITT DEST_SONOC DEST_PULSE
   DEST_KITT="$SOMA_CLONE/suite/android/apps/kitt-arkadas-android"
   DEST_SONOC="$SOMA_CLONE/suite/android/lab/SonocScrewDriver"
-  if [[ "$DRY_RUN" == "1" ]]; then
-    log "DRY_RUN=1 — skip rsync"
-    return 0
-  fi
-  mkdir -p "$DEST_KITT"
-  rsync -a --delete --exclude '.gradle' --exclude 'build' --exclude '.idea' \
-    "$KITT_SRC/" "$DEST_KITT/"
-  echo "MOVED_OR_SYNCED KITT -> $DEST_KITT" | tee "$RECEIPT_DIR/MOVE_KITT_${TS}.txt"
+  DEST_PULSE="$SOMA_CLONE/suite/android/apps/PULSE-Android"
 
-  if [[ -d "$SONOC_SRC" ]]; then
-    mkdir -p "$DEST_SONOC"
-    rsync -a --exclude '.gradle' --exclude 'build' --exclude '.idea' \
-      "$SONOC_SRC/" "$DEST_SONOC/"
-    echo "MOVED_OR_SYNCED SONOC -> $DEST_SONOC" | tee "$RECEIPT_DIR/MOVE_SONOC_${TS}.txt"
+  if [[ -n "$KITT_SRC" && -d "$KITT_SRC" ]]; then
+    rsync_unit "$KITT_SRC" "$DEST_KITT" "KITT" "$RECEIPT_DIR/MOVE_KITT_${TS}.txt"
   else
-    echo "HOLD.SonocSourceAbsent" | tee "$RECEIPT_DIR/HOLD_SONOC_${TS}.txt"
+    log "skip KITT (absent)"
+  fi
+
+  if [[ -n "$SONOC_SRC" && -d "$SONOC_SRC" ]]; then
+    rsync_unit "$SONOC_SRC" "$DEST_SONOC" "SONOC" "$RECEIPT_DIR/MOVE_SONOC_${TS}.txt"
+  else
+    log "skip SONOC (absent)"
+  fi
+
+  if [[ -n "$PULSE_ANDROID_SRC" && -d "$PULSE_ANDROID_SRC" ]]; then
+    rsync_unit "$PULSE_ANDROID_SRC" "$DEST_PULSE" "PULSE-Android-local" "$RECEIPT_DIR/MOVE_PULSE_ANDROID_${TS}.txt"
+  else
+    log "skip PULSE-Android (absent)"
+  fi
+
+  if [[ "$MOVED_ANY" -eq 0 ]]; then
+    hold "HOLD.NoUnitsMoved — nothing PRESENT to weave this cycle"
   fi
 }
 
 stage_sol() {
-  log "=== Sol — DOJO stub pointer (leave green path as pointer only) ==="
-  STUB_DIR="$FIELD_ROOT/◼︎DOJO/kitt-arkadas-android"
-  STUB_FILE="$STUB_DIR/MOVED_TO_SOMA_SUITE.md"
+  log "=== Sol — DOJO stub pointer (only if KITT source existed) ==="
+  if [[ -z "$KITT_SRC" || ! -d "$KITT_SRC" ]]; then
+    log "skip stub — no KITT source path"
+    return 0
+  fi
   if [[ "$DRY_RUN" == "1" ]]; then
     log "DRY_RUN=1 — skip stub write"
     return 0
   fi
-  if [[ -d "$STUB_DIR" ]]; then
-    # If we rsynced out of tree that is still the same folder, write stub beside after move.
-    # Prefer: if destination exists in SOMA and source still present, replace source tree with stub.
-    :
-  fi
+  local TEMPLATE STUB_FILE
   TEMPLATE="$SOMA_CLONE/suite/android/migration/DOJO_STUB_README.md"
-  if [[ -f "$TEMPLATE" ]]; then
-    # After successful sync, leave a pointer file in DOJO path without deleting history unless MOVE_MODE=replace
-    if [[ "${MOVE_MODE:-pointer}" == "replace" ]]; then
-      BACKUP="$HOME/FIELD-ANDROID-BACKUPS/kitt-arkadas-android-pre-soma-${TS}"
-      mkdir -p "$HOME/FIELD-ANDROID-BACKUPS"
-      if [[ -d "$KITT_SRC" ]] && [[ "$(cd "$KITT_SRC" && pwd)" != "$(cd "$SOMA_CLONE/suite/android/apps/kitt-arkadas-android" && pwd)" ]]; then
-        mv "$KITT_SRC" "$BACKUP"
-        mkdir -p "$KITT_SRC"
-        cp "$TEMPLATE" "$KITT_SRC/README.md"
-        echo "REPLACED DOJO path with stub; backup at $BACKUP" | tee "$RECEIPT_DIR/DOJO_STUB_${TS}.txt"
-      fi
-    else
-      cp "$TEMPLATE" "$STUB_FILE"
-      echo "POINTER stub written: $STUB_FILE (source retained until MOVE_MODE=replace)" | tee "$RECEIPT_DIR/DOJO_STUB_${TS}.txt"
+  STUB_FILE="$KITT_SRC/MOVED_TO_SOMA_SUITE.md"
+  if [[ ! -f "$TEMPLATE" ]]; then
+    hold "HOLD.DojoStubTemplateMissing"
+    return 0
+  fi
+  if [[ "${MOVE_MODE:-pointer}" == "replace" ]]; then
+    local BACKUP DEST_KITT
+    DEST_KITT="$SOMA_CLONE/suite/android/apps/kitt-arkadas-android"
+    BACKUP="$HOME/FIELD-ANDROID-BACKUPS/kitt-arkadas-android-pre-soma-${TS}"
+    mkdir -p "$HOME/FIELD-ANDROID-BACKUPS"
+    if [[ -d "$DEST_KITT" ]] && [[ "$(cd "$KITT_SRC" && pwd)" != "$(cd "$DEST_KITT" && pwd)" ]]; then
+      mv "$KITT_SRC" "$BACKUP"
+      mkdir -p "$KITT_SRC"
+      cp "$TEMPLATE" "$KITT_SRC/README.md"
+      echo "REPLACED DOJO path with stub; backup at $BACKUP" | tee "$RECEIPT_DIR/DOJO_STUB_${TS}.txt"
     fi
+  else
+    cp "$TEMPLATE" "$STUB_FILE"
+    echo "POINTER stub written: $STUB_FILE (source retained until MOVE_MODE=replace)" | tee "$RECEIPT_DIR/DOJO_STUB_${TS}.txt"
   fi
 }
 
 stage_la() {
   log "=== La — feedback / git status in SOMA ==="
   cd "$SOMA_CLONE"
+  # Refresh HOLD register note from this cycle
+  if [[ -f suite/android/UNKNOWN_HOLD_REGISTER.md ]]; then
+    {
+      echo ""
+      echo "## Studio weaver cycle $TS"
+      echo ""
+      echo "| Pin | State | Note |"
+      echo "|-----|-------|------|"
+      echo "| HOLD.MacStudioFsUnreachableFromCloudSeat | CLOSED for this cycle | Ran on $(hostname) as $(whoami) |"
+      if [[ -n "$KITT_SRC" ]]; then
+        echo "| HOLD.KittLocalReWitness | CLOSED | path=$KITT_SRC |"
+      else
+        echo "| HOLD.KittLocalReWitness | OPEN | HOLD.KittSourceMissing after field+jbear search |"
+      fi
+      if [[ -n "$SONOC_SRC" ]]; then
+        echo "| HOLD.SonocLocalReWitness | CLOSED | path=$SONOC_SRC |"
+      else
+        echo "| HOLD.SonocLocalReWitness | OPEN | |"
+      fi
+      if [[ -n "$PULSE_ANDROID_SRC" ]]; then
+        echo "| Unknown.PulseAndroidLocalRecovery | OPEN→witnessed | local=$PULSE_ANDROID_SRC; GitHub still CONFIRMED_ABSENT |"
+      fi
+    } >> suite/android/UNKNOWN_HOLD_REGISTER.md
+  fi
+
   git status -sb | tee "$RECEIPT_DIR/SOMA_GIT_STATUS_${TS}.txt"
   git add suite/android
   if git diff --cached --quiet; then
-    log "No staged changes (maybe already synced)."
+    log "No staged changes (maybe already synced or nothing PRESENT)."
   else
     git commit -m "$(cat <<'EOF'
 feat(suite/android): ingest Mac Studio Android estate into SOMA Suite
 
-KITT + lab units synced by studio_android_to_soma_weaver.
+PRESENT units synced by studio_android_to_soma_weaver (soft HOLD on absents).
 Residence: Sovereign SOMA Field. Matrix lines kept open via receipts.
 EOF
 )"
@@ -184,13 +352,21 @@ stage_do2() {
   {
     echo "timestamp_utc: $TS"
     echo "status: WEAVER_CYCLE_COMPLETE"
+    echo "moved_any: $MOVED_ANY"
+    echo "hold_any: $HOLD_ANY"
+    echo "KITT_SRC=${KITT_SRC:-ABSENT}"
+    echo "SONOC_SRC=${SONOC_SRC:-ABSENT}"
+    echo "PULSE_ANDROID_SRC=${PULSE_ANDROID_SRC:-ABSENT}"
     echo "next_ground:"
     echo "  - open/merge PR for $BRANCH on Field-NixOS-SOMA"
-    echo "  - update Linear UNKNOWN_HOLD_REGISTER with Studio receipts"
+    echo "  - if KITT still ABSENT: search Time Machine / external / jbear FIELD tree manually"
     echo "  - MOVE_MODE=replace only after PR merged and backup verified"
-    echo "matrix: lines remain open; do not collapse to outcome without merge receipt"
+    echo "matrix: lines remain open; do not collapse to DONE without merge + KITT resolution"
   } | tee "$RECEIPT_DIR/NEW_GROUND_${TS}.txt"
   log "DONE weaver cycle. Receipts in $RECEIPT_DIR"
+  if [[ "$HOLD_ANY" -eq 1 ]]; then
+    log "NOTE: one or more HOLDs — see $RECEIPT_DIR/HOLDS_${TS}.txt (cycle still completed)"
+  fi
 }
 
 # ---- main Do–Re–Mi–Fa–Sol–La–Ti–Do ----

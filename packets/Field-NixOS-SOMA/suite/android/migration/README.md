@@ -4,17 +4,27 @@
 
 Move Mac Studio Android estate into `Field-NixOS-SOMA/suite/android/` without collapsing Mandela matrix lines into a fake “done.”
 
-## Do–Re–Mi (one shot on green desk)
+## Soft HOLD law
+
+Missing **one** unit (e.g. KITT) must **not** abort the cycle. Emit HOLD receipts; weave every PRESENT unit (Sonoc, local PULSE-Android, …).
+
+## Desk users
+
+Studio may run as `field` (daily) or use historical `jbear` paths. Weaver searches both.
+
+## Do–Re–Mi (preferred: via packet ONE_SHOT)
 
 ```bash
-# On Mac Studio Cursor / Terminal
-git clone https://github.com/nexus-infinity/Field-NixOS-SOMA.git ~/FIELD-SOMA-WORK/Field-NixOS-SOMA
-# after suite-home PR is on main, or checkout the suite-home branch:
-cd ~/FIELD-SOMA-WORK/Field-NixOS-SOMA
-git fetch && git checkout cursor/soma-android-suite-home-684b   # or main once merged
-chmod +x suite/android/migration/studio_android_to_soma_weaver.sh
+cd ~/FIELD-SOMA-WORK/pulse
+git pull --ff-only origin cursor/soma-android-suite-packet-684b
+WEAVE_ONLY=1 ./packets/Field-NixOS-SOMA/ONE_SHOT_STUDIO_APPLY_AND_WEAVE.sh
+```
 
-# First pass: sync into SOMA + leave pointer (keeps DOJO copy)
+Or direct:
+
+```bash
+cd ~/FIELD-SOMA-WORK/Field-NixOS-SOMA
+chmod +x suite/android/migration/studio_android_to_soma_weaver.sh
 ./suite/android/migration/studio_android_to_soma_weaver.sh
 
 # After PR merged + backup verified — optional replace DOJO tree with stub only:
@@ -27,11 +37,23 @@ Dry run:
 DRY_RUN=1 ./suite/android/migration/studio_android_to_soma_weaver.sh
 ```
 
-## What cloud seat already did
+## Env overrides (optional)
 
-- Seated `suite/android/` home + AGENTS + HOLD register on GitHub branch
-- Wrote this weaver (cannot execute Mac half from cloud)
+```bash
+KITT_SRC=/path/to/kitt-arkadas-android \
+SONOC_SRC=/path/to/SonocScrewDriver \
+PULSE_ANDROID_SRC=/path/to/PULSE-Android \
+./suite/android/migration/studio_android_to_soma_weaver.sh
+```
 
-## What remains open until Studio weaver runs
+## Destinations
 
-See `../UNKNOWN_HOLD_REGISTER.md` — especially `HOLD.MacStudioFsUnreachableFromCloudSeat`.
+| Unit | Destination |
+|------|-------------|
+| KITT | `suite/android/apps/kitt-arkadas-android/` |
+| Sonoc | `suite/android/lab/SonocScrewDriver/` |
+| PULSE-Android (local) | `suite/android/apps/PULSE-Android/` |
+
+## What remains open
+
+See `../UNKNOWN_HOLD_REGISTER.md` — especially `HOLD.KittSourceMissing` until KITT is found or ruled out.
