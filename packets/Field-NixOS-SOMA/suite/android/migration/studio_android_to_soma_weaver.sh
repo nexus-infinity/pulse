@@ -3,18 +3,24 @@
 # Do–Re–Mi one-shot: Gate1 re-witness + move Android estate into Field-NixOS-SOMA suite/android
 # RUN ON MAC STUDIO (green desk). Cloud seats cannot see Studio FS.
 #
-# Matrix law: do not collapse lines into outcome — emit receipts; HOLD when pins missing.
-# Soft HOLD: missing one unit does NOT abort the cycle — weave what is PRESENT.
+# LOCKED seat map:
+#   Local FIELD desk  = /Users/field/   ← THIS is local FIELD (Unix user field)
+#   /Users/jbear/     ≠ local FIELD     ← other account / historical Klaus residue only
+# Soft HOLD: missing one unit does NOT abort — weave what is PRESENT under field first.
 # Residence: teal SOMA · not slate Pulse · not green DOJO destination.
 #
 # Studio receipt 2026-08-15T083118Z (macstudio.local, user field):
-#   ABSENT  KITT at ~/◼︎DOJO/kitt-arkadas-android
-#   PRESENT Sonoc at /Users/jbear/AndroidStudioProjects/SonocScrewDriver
-#   PRESENT local PULSE-Android at ~/StudioProjects/PULSE-Android (GitHub repo CONFIRMED_ABSENT)
-#   PRESENT ~/Library/Android ~7.1G
+#   ABSENT  KITT at /Users/field/◼︎DOJO/kitt-arkadas-android
+#   PRESENT local PULSE-Android at /Users/field/StudioProjects/PULSE-Android
+#   PRESENT /Users/field/Library/Android ~7.1G
+#   CROSS-ACCOUNT (not FIELD): Sonoc seen under /Users/jbear/AndroidStudioProjects/...
 set -euo pipefail
 
 TS="$(date -u +%Y-%m-%dT%H%M%SZ)"
+FIELD_HOME="${FIELD_HOME:-/Users/field}"
+# Optional: scan foreign account leftovers — NEVER treat as local FIELD
+JBEAR_HOME="${JBEAR_HOME:-/Users/jbear}"
+SCAN_JBEAR_LEFTOVERS="${SCAN_JBEAR_LEFTOVERS:-1}"
 SOMA_CLONE="${SOMA_CLONE:-$HOME/FIELD-SOMA-WORK/Field-NixOS-SOMA}"
 SOMA_REMOTE="${SOMA_REMOTE:-https://github.com/nexus-infinity/Field-NixOS-SOMA.git}"
 BRANCH="${BRANCH:-cursor/soma-android-content-move-684b}"
@@ -24,7 +30,7 @@ DRY_RUN="${DRY_RUN:-0}"
 MOVED_ANY=0
 HOLD_ANY=0
 
-# Resolved by stage_re (first PRESENT wins unless env override)
+# Resolved by stage_re (first PRESENT under FIELD_HOME wins unless env override)
 KITT_SRC="${KITT_SRC:-}"
 SONOC_SRC="${SONOC_SRC:-}"
 PULSE_ANDROID_SRC="${PULSE_ANDROID_SRC:-}"
@@ -50,9 +56,9 @@ first_present() {
 
 need_mac() {
   [[ "$(uname -s)" == "Darwin" ]] || die "This weaver must run on Mac Studio (Darwin). Cloud seat cannot complete Gate1 Mac half."
-  # Desk may be field (daily) or jbear (historical Klaus paths) — either is valid.
-  if [[ ! -d /Users/field && ! -d /Users/jbear ]]; then
-    die "Neither /Users/field nor /Users/jbear present — wrong desk."
+  # Local FIELD is /Users/field — not /Users/jbear
+  if [[ ! -d "$FIELD_HOME" ]]; then
+    die "Local FIELD desk missing: $FIELD_HOME (jbear is NOT local FIELD)"
   fi
 }
 
@@ -79,38 +85,44 @@ stage_do() {
   : >"$RECEIPT_DIR/HOLDS_${TS}.txt"
   log "SOMA clone: $SOMA_CLONE"
   log "Receipt dir: $RECEIPT_DIR"
+  log "local_FIELD: $FIELD_HOME  (jbear ≠ FIELD)"
   log "operator_user: $(whoami)  HOME=$HOME"
 }
 
 stage_re() {
-  log "=== Re — ingest / re-witness + resolve sources ==="
-  local field_home jbear_home
-  field_home="/Users/field"
-  jbear_home="/Users/jbear"
+  log "=== Re — ingest / re-witness + resolve sources (FIELD=/Users/field) ==="
 
-  # Candidate lists (env override already set → keep)
+  # FIELD desk candidates first. jbear only if SCAN_JBEAR_LEFTOVERS=1 (not FIELD).
   local -a kitt_cands=(
     "${KITT_SRC}"
-    "$HOME/◼︎DOJO/kitt-arkadas-android"
-    "$HOME/FIELD/◼︎DOJO/kitt-arkadas-android"
-    "$field_home/◼︎DOJO/kitt-arkadas-android"
-    "$field_home/FIELD/◼︎DOJO/kitt-arkadas-android"
-    "$jbear_home/FIELD/◼︎DOJO/kitt-arkadas-android"
-    "$jbear_home/◼︎DOJO/kitt-arkadas-android"
+    "$FIELD_HOME/◼︎DOJO/kitt-arkadas-android"
+    "$FIELD_HOME/FIELD/◼︎DOJO/kitt-arkadas-android"
+    "$FIELD_HOME/StudioProjects/kitt-arkadas-android"
+    "$FIELD_HOME/AndroidStudioProjects/kitt-arkadas-android"
   )
   local -a sonoc_cands=(
     "${SONOC_SRC}"
-    "$jbear_home/AndroidStudioProjects/SonocScrewDriver"
-    "$field_home/AndroidStudioProjects/SonocScrewDriver"
-    "$HOME/AndroidStudioProjects/SonocScrewDriver"
+    "$FIELD_HOME/AndroidStudioProjects/SonocScrewDriver"
+    "$FIELD_HOME/StudioProjects/SonocScrewDriver"
   )
   local -a pulse_cands=(
     "${PULSE_ANDROID_SRC}"
-    "$HOME/StudioProjects/PULSE-Android"
-    "$field_home/StudioProjects/PULSE-Android"
-    "$jbear_home/StudioProjects/PULSE-Android"
-    "$HOME/AndroidStudioProjects/PULSE-Android"
+    "$FIELD_HOME/StudioProjects/PULSE-Android"
+    "$FIELD_HOME/AndroidStudioProjects/PULSE-Android"
   )
+
+  if [[ "$SCAN_JBEAR_LEFTOVERS" == "1" && -d "$JBEAR_HOME" ]]; then
+    kitt_cands+=(
+      "$JBEAR_HOME/FIELD/◼︎DOJO/kitt-arkadas-android"
+      "$JBEAR_HOME/◼︎DOJO/kitt-arkadas-android"
+    )
+    sonoc_cands+=(
+      "$JBEAR_HOME/AndroidStudioProjects/SonocScrewDriver"
+    )
+    pulse_cands+=(
+      "$JBEAR_HOME/StudioProjects/PULSE-Android"
+    )
+  fi
 
   KITT_SRC="$(first_present "${kitt_cands[@]}")" || KITT_SRC=""
   SONOC_SRC="$(first_present "${sonoc_cands[@]}")" || SONOC_SRC=""
@@ -122,46 +134,62 @@ stage_re() {
     echo "uname: $(uname -a)"
     echo "whoami: $(whoami)"
     echo "HOME: $HOME"
+    echo "local_FIELD: $FIELD_HOME"
+    echo "jbear_note: /Users/jbear is NOT local FIELD (SCAN_JBEAR_LEFTOVERS=$SCAN_JBEAR_LEFTOVERS)"
     echo
     echo "## resolved sources"
     echo "KITT_SRC=${KITT_SRC:-ABSENT}"
     echo "SONOC_SRC=${SONOC_SRC:-ABSENT}"
     echo "PULSE_ANDROID_SRC=${PULSE_ANDROID_SRC:-ABSENT}"
+    if [[ -n "$SONOC_SRC" && "$SONOC_SRC" == "$JBEAR_HOME"* ]]; then
+      echo "NOTE: SONOC resolved under jbear leftover path — not FIELD desk home"
+    fi
     echo
-    echo "## path witness"
+    echo "## path witness (FIELD desk first)"
     local p
     for p in \
-      "$HOME/◼︎DOJO/kitt-arkadas-android" \
-      "$HOME/FIELD/◼︎DOJO/kitt-arkadas-android" \
-      "$field_home/◼︎DOJO/kitt-arkadas-android" \
-      "$jbear_home/FIELD/◼︎DOJO/kitt-arkadas-android" \
-      "$jbear_home/AndroidStudioProjects/SonocScrewDriver" \
-      "$HOME/StudioProjects/PULSE-Android" \
-      "$HOME/Library/Android" \
-      "$HOME/AndroidStudioProjects" \
-      "$HOME/FIELD-ANDROID-BACKUPS" \
-      "$HOME/FIELD-ANDROID-SYNC" \
-      "$field_home/Library/Android" \
-      "$jbear_home/Library/Android"; do
+      "$FIELD_HOME/◼︎DOJO/kitt-arkadas-android" \
+      "$FIELD_HOME/FIELD/◼︎DOJO/kitt-arkadas-android" \
+      "$FIELD_HOME/StudioProjects/PULSE-Android" \
+      "$FIELD_HOME/StudioProjects/SonocScrewDriver" \
+      "$FIELD_HOME/AndroidStudioProjects/SonocScrewDriver" \
+      "$FIELD_HOME/Library/Android" \
+      "$FIELD_HOME/AndroidStudioProjects" \
+      "$FIELD_HOME/FIELD-ANDROID-BACKUPS" \
+      "$FIELD_HOME/FIELD-ANDROID-SYNC"; do
       if [[ -e "$p" ]]; then
         echo "PRESENT  $(du -sh "$p" 2>/dev/null | awk '{print $1}')  $p"
       else
         echo "ABSENT   -  $p"
       fi
     done
+    if [[ "$SCAN_JBEAR_LEFTOVERS" == "1" && -d "$JBEAR_HOME" ]]; then
+      echo
+      echo "## cross-account leftovers (NOT FIELD) under $JBEAR_HOME"
+      for p in \
+        "$JBEAR_HOME/FIELD/◼︎DOJO/kitt-arkadas-android" \
+        "$JBEAR_HOME/AndroidStudioProjects/SonocScrewDriver" \
+        "$JBEAR_HOME/Library/Android"; do
+        if [[ -e "$p" ]]; then
+          echo "LEFTOVER $(du -sh "$p" 2>/dev/null | awk '{print $1}')  $p"
+        else
+          echo "ABSENT   -  $p"
+        fi
+      done
+    fi
     echo
-    echo "## find *kitt* (field + jbear homes, maxdepth 5)"
-    for root in "$field_home" "$jbear_home"; do
-      [[ -d "$root" ]] || continue
-      find "$root" \( -iname '*kitt*android*' -o -iname 'kitt-arkadas*' \) -maxdepth 5 2>/dev/null | head -40 || true
-    done
+    echo "## find *kitt* under FIELD desk (maxdepth 5)"
+    find "$FIELD_HOME" \( -iname '*kitt*android*' -o -iname 'kitt-arkadas*' \) -maxdepth 5 2>/dev/null | head -40 || true
+    if [[ "$SCAN_JBEAR_LEFTOVERS" == "1" && -d "$JBEAR_HOME" ]]; then
+      echo
+      echo "## find *kitt* under jbear leftovers (NOT FIELD, maxdepth 5)"
+      find "$JBEAR_HOME" \( -iname '*kitt*android*' -o -iname 'kitt-arkadas*' \) -maxdepth 5 2>/dev/null | head -40 || true
+    fi
     echo
-    echo "## find *android* under StudioProjects / AndroidStudioProjects (maxdepth 3)"
+    echo "## find under FIELD StudioProjects / AndroidStudioProjects (maxdepth 3)"
     for root in \
-      "$HOME/StudioProjects" \
-      "$HOME/AndroidStudioProjects" \
-      "$field_home/StudioProjects" \
-      "$jbear_home/AndroidStudioProjects"; do
+      "$FIELD_HOME/StudioProjects" \
+      "$FIELD_HOME/AndroidStudioProjects"; do
       [[ -d "$root" ]] || continue
       echo "# $root"
       find "$root" -maxdepth 3 \( -iname '*android*' -o -iname '*sonoc*' -o -iname '*pulse*' -o -iname '*kitt*' \) 2>/dev/null | head -40 || true
@@ -172,7 +200,7 @@ stage_re() {
 stage_mi() {
   log "=== Mi — verify coherence per PRESENT unit (soft HOLD if absent) ==="
   if [[ -z "$KITT_SRC" || ! -d "$KITT_SRC" ]]; then
-    hold "HOLD.KittSourceMissing — searched field+jbear DOJO/FIELD paths; continuing without KITT"
+    hold "HOLD.KittSourceMissing — not under /Users/field DOJO/StudioProjects; continuing without KITT"
   else
     (
       cd "$KITT_SRC"
@@ -304,19 +332,23 @@ stage_la() {
       echo ""
       echo "| Pin | State | Note |"
       echo "|-----|-------|------|"
-      echo "| HOLD.MacStudioFsUnreachableFromCloudSeat | CLOSED for this cycle | Ran on $(hostname) as $(whoami) |"
+        echo "| HOLD.MacStudioFsUnreachableFromCloudSeat | CLOSED for this cycle | Ran on $(hostname) as $(whoami); local FIELD=$FIELD_HOME |"
       if [[ -n "$KITT_SRC" ]]; then
         echo "| HOLD.KittLocalReWitness | CLOSED | path=$KITT_SRC |"
       else
-        echo "| HOLD.KittLocalReWitness | OPEN | HOLD.KittSourceMissing after field+jbear search |"
+        echo "| HOLD.KittLocalReWitness | OPEN | HOLD.KittSourceMissing under /Users/field |"
       fi
       if [[ -n "$SONOC_SRC" ]]; then
-        echo "| HOLD.SonocLocalReWitness | CLOSED | path=$SONOC_SRC |"
+        if [[ "$SONOC_SRC" == "$JBEAR_HOME"* ]]; then
+          echo "| HOLD.SonocLocalReWitness | OPEN→leftover | found under jbear (NOT FIELD): $SONOC_SRC |"
+        else
+          echo "| HOLD.SonocLocalReWitness | CLOSED | path=$SONOC_SRC (FIELD desk) |"
+        fi
       else
-        echo "| HOLD.SonocLocalReWitness | OPEN | |"
+        echo "| HOLD.SonocLocalReWitness | OPEN | not under /Users/field |"
       fi
       if [[ -n "$PULSE_ANDROID_SRC" ]]; then
-        echo "| Unknown.PulseAndroidLocalRecovery | OPEN→witnessed | local=$PULSE_ANDROID_SRC; GitHub still CONFIRMED_ABSENT |"
+        echo "| Unknown.PulseAndroidLocalRecovery | OPEN→witnessed | FIELD local=$PULSE_ANDROID_SRC; GitHub still CONFIRMED_ABSENT |"
       fi
     } >> suite/android/UNKNOWN_HOLD_REGISTER.md
   fi
@@ -359,7 +391,7 @@ stage_do2() {
     echo "PULSE_ANDROID_SRC=${PULSE_ANDROID_SRC:-ABSENT}"
     echo "next_ground:"
     echo "  - open/merge PR for $BRANCH on Field-NixOS-SOMA"
-    echo "  - if KITT still ABSENT: search Time Machine / external / jbear FIELD tree manually"
+    echo "  - if KITT still ABSENT: search under /Users/field (Time Machine / external) — jbear is NOT local FIELD"
     echo "  - MOVE_MODE=replace only after PR merged and backup verified"
     echo "matrix: lines remain open; do not collapse to DONE without merge + KITT resolution"
   } | tee "$RECEIPT_DIR/NEW_GROUND_${TS}.txt"

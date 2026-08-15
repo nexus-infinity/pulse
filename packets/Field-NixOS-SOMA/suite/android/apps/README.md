@@ -1,10 +1,10 @@
 # apps/ — production Android homes (SOMA Suite)
 
-Target move units (House of Cards load order):
+Local FIELD desk: **`/Users/field/`** (not `/Users/jbear/`).
 
-| Unit | Source (Mac Studio) | Destination | Studio 2026-08-15 |
+| Unit | Source (FIELD desk) | Destination | Studio 2026-08-15 |
 |------|---------------------|-------------|-------------------|
-| KITT Arkadaş Android | DOJO under field or jbear FIELD | `suite/android/apps/kitt-arkadas-android/` | ABSENT — HOLD |
+| KITT Arkadaş Android | `/Users/field/◼︎DOJO/...` or StudioProjects | `suite/android/apps/kitt-arkadas-android/` | ABSENT — HOLD |
 | PULSE-Android (local) | `/Users/field/StudioProjects/PULSE-Android` | `suite/android/apps/PULSE-Android/` | PRESENT — weave next cycle |
 | PULSE / S22 hub (named GitHub) | CONFIRMED_ABSENT on GitHub | — | do not invent |
 

@@ -40,4 +40,4 @@ Run on **Mac Studio (green desk)** — one command:
 bash /path/to/Field-NixOS-SOMA/suite/android/migration/studio_android_to_soma_weaver.sh
 ```
 
-Cloud agents can seat this home; they cannot see `/Users/jbear` disks.
+Cloud agents can seat this home; they cannot see `/Users/field` disks (local FIELD desk).

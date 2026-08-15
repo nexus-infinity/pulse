@@ -41,9 +41,10 @@ MOVE_MODE=replace ./suite/android/migration/studio_android_to_soma_weaver.sh
 | Line | State |
 |------|-------|
 | Suite home push | PASS (`cursor/soma-android-suite-home-684b`) |
-| KITT at `/Users/field/◼︎DOJO/...` | ABSENT → HOLD |
-| Sonoc under jbear | PRESENT |
-| `~/StudioProjects/PULSE-Android` | PRESENT (GitHub repo still CONFIRMED_ABSENT) |
+| Local FIELD desk | `/Users/field/` (LOCKED — jbear is NOT FIELD) |
+| KITT under `/Users/field` | ABSENT → HOLD |
+| PULSE-Android under `/Users/field/StudioProjects` | PRESENT |
+| Sonoc under `/Users/field` | not witnessed; leftover under jbear is cross-account only |
 | Content move DONE | **Not claimed** until weave receipts + PR |
 
 ## Why cloud agent cannot finish content move

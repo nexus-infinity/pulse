@@ -6,11 +6,16 @@ Move Mac Studio Android estate into `Field-NixOS-SOMA/suite/android/` without co
 
 ## Soft HOLD law
 
-Missing **one** unit (e.g. KITT) must **not** abort the cycle. Emit HOLD receipts; weave every PRESENT unit (Sonoc, local PULSE-Android, …).
+Missing **one** unit (e.g. KITT) must **not** abort the cycle. Emit HOLD receipts; weave every PRESENT unit under local FIELD.
 
-## Desk users
+## Local FIELD desk (LOCKED)
 
-Studio may run as `field` (daily) or use historical `jbear` paths. Weaver searches both.
+```text
+/Users/field/     ← local FIELD
+/Users/jbear/     ← NOT local FIELD (optional leftover scan only)
+```
+
+Weaver requires `/Users/field`. Set `SCAN_JBEAR_LEFTOVERS=0` to skip the foreign account entirely.
 
 ## Do–Re–Mi (preferred: via packet ONE_SHOT)
 
@@ -40,9 +45,11 @@ DRY_RUN=1 ./suite/android/migration/studio_android_to_soma_weaver.sh
 ## Env overrides (optional)
 
 ```bash
-KITT_SRC=/path/to/kitt-arkadas-android \
-SONOC_SRC=/path/to/SonocScrewDriver \
-PULSE_ANDROID_SRC=/path/to/PULSE-Android \
+FIELD_HOME=/Users/field \
+KITT_SRC=/Users/field/path/to/kitt-arkadas-android \
+SONOC_SRC=/Users/field/path/to/SonocScrewDriver \
+PULSE_ANDROID_SRC=/Users/field/StudioProjects/PULSE-Android \
+SCAN_JBEAR_LEFTOVERS=0 \
 ./suite/android/migration/studio_android_to_soma_weaver.sh
 ```
 
@@ -56,4 +63,4 @@ PULSE_ANDROID_SRC=/path/to/PULSE-Android \
 
 ## What remains open
 
-See `../UNKNOWN_HOLD_REGISTER.md` — especially `HOLD.KittSourceMissing` until KITT is found or ruled out.
+See `../UNKNOWN_HOLD_REGISTER.md` — especially `HOLD.KittSourceMissing` until KITT is found under `/Users/field` or ruled out.
