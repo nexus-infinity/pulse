@@ -77,10 +77,21 @@ stage_do() {
     git stash push -u -m "soma-weaver-pre-checkout-${TS}" || true
     log "stashed dirty SOMA worktree before branch switch (stash: soma-weaver-pre-checkout-${TS})"
   fi
+  # Leftover gitlink/submodule working dirs block checkout (unable to rmdir)
+  if [[ -d suite/android/apps/PULSE-Android ]]; then
+    rm -rf suite/android/apps/PULSE-Android
+    log "removed leftover suite/android/apps/PULSE-Android before branch switch"
+  fi
   git checkout main
   git pull --ff-only origin main || true
-  if git show-ref --verify --quiet "refs/remotes/origin/${SUITE_HOME_BRANCH}"; then
-    git checkout -B "$BRANCH" "origin/${SUITE_HOME_BRANCH}" || git checkout -B "$BRANCH"
+  # Prefer existing content-move remote tip (do NOT reset onto suite-home — that diverges history)
+  if git show-ref --verify --quiet "refs/remotes/origin/${BRANCH}"; then
+    git checkout -B "$BRANCH" "origin/${BRANCH}"
+    git pull --ff-only origin "$BRANCH" || true
+    log "grounded on origin/${BRANCH}"
+  elif git show-ref --verify --quiet "refs/remotes/origin/${SUITE_HOME_BRANCH}"; then
+    git checkout -B "$BRANCH" "origin/${SUITE_HOME_BRANCH}"
+    log "grounded on origin/${SUITE_HOME_BRANCH} (first content-move)"
   else
     git checkout -B "$BRANCH"
   fi
@@ -248,7 +259,8 @@ stage_mi() {
       {
         echo "timestamp_utc: $TS"
         echo "path: $PULSE_ANDROID_SRC"
-        echo "note: GitHub nexus-infinity/PULSE-Android CONFIRMED_ABSENT — local-only recovery"
+        echo "note: public GitHub API 404 for nexus-infinity/PULSE-Android; local origin may still point at that URL (private/opaque) — ingest into SOMA as normal tree"
+        echo "ahead/behind vs origin is local-only signal; SOMA Suite is durable home"
         echo "## git remote -v"
         git remote -v 2>/dev/null || echo "NO_GIT_OR_NO_REMOTE"
         echo "## git status -sb"
@@ -325,6 +337,8 @@ stage_fa() {
   else
     log "skip PULSE-Android (absent)"
   fi
+
+  flatten_suite_gitlinks
 
   if [[ "$MOVED_ANY" -eq 0 ]]; then
     hold "HOLD.NoUnitsMoved — nothing PRESENT to weave this cycle"
@@ -441,21 +455,33 @@ stage_la() {
         echo "| HOLD.SonocLocalReWitness | OPEN | not under /Users/field |"
       fi
       if [[ -n "$PULSE_ANDROID_SRC" ]]; then
-        echo "| Unknown.PulseAndroidLocalRecovery | OPEN→witnessed | FIELD local=$PULSE_ANDROID_SRC; GitHub still CONFIRMED_ABSENT |"
+        echo "| Unknown.PulseAndroidLocalRecovery | OPEN→witnessed | FIELD local=$PULSE_ANDROID_SRC; public GitHub 404; local remote may be private/opaque |"
+        echo "| HOLD.PulseAndroidMustBeNormalTree | OPEN until repaired | prior cycle may have gitlink 160000 — flatten required |"
       fi
+      echo "| HOLD.KittSpecOnlyUnderJbear | OPEN | witnessed /Users/jbear/FIELD/◼︎DOJO/KITT_ARKADAS_ANDROID_SPEC.md — not source tree |"
     } >> suite/android/UNKNOWN_HOLD_REGISTER.md
   fi
 
+  flatten_suite_gitlinks
   git status -sb | tee "$RECEIPT_DIR/SOMA_GIT_STATUS_${TS}.txt"
-  git add suite/android
+  # Force-add as normal files (never submodule)
+  git add -A suite/android
+  # Guard: refuse to leave gitlinks staged
+  if git ls-files -s suite/android | awk '$1=="160000"{exit 1}'; then
+    :
+  else
+    hold "HOLD.GitlinkStillStaged — attempting second flatten"
+    flatten_suite_gitlinks
+    git add -A suite/android
+  fi
   if git diff --cached --quiet; then
     log "No staged changes (maybe already synced or nothing PRESENT)."
   else
     git commit -m "$(cat <<'EOF'
 feat(suite/android): ingest Mac Studio Android estate into SOMA Suite
 
-PRESENT units synced by studio_android_to_soma_weaver (soft HOLD on absents).
-Residence: Sovereign SOMA Field. Matrix lines kept open via receipts.
+PRESENT units synced as normal trees (no nested .git / gitlinks).
+Soft HOLD on absents. Residence: Sovereign SOMA Field.
 EOF
 )"
   fi
