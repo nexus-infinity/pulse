@@ -48,6 +48,12 @@ first_present() {
   local p
   for p in "$@"; do
     if [[ -n "$p" && -e "$p" ]]; then
+      # Skip stub directories created by reclaim (contain only README.md marker)
+      if [[ -d "$p" && -f "$p/README.md" ]]; then
+        if grep -q "MOVED to Sovereign SOMA Field" "$p/README.md" 2>/dev/null; then
+          continue
+        fi
+      fi
       printf '%s' "$p"
       return 0
     fi
@@ -557,7 +563,7 @@ stage_do
 stage_re
 stage_mi
 stage_fa
-stage_sol
 stage_la
 stage_ti
+stage_sol
 stage_do2
