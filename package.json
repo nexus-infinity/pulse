@@ -1,0 +1,21 @@
+{
+  "name": "pulse",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PULSE — Sovereign Home OS monorepo",
+  "packageManager": "pnpm@10.33.3",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  },
+  "scripts": {
+    "build": "pnpm --filter @pulse/shared build && pnpm --filter @pulse/web build",
+    "build:shared": "pnpm --filter @pulse/shared build",
+    "dev": "pnpm --filter @pulse/web dev",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint"
+  }
+}
