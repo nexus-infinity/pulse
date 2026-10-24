@@ -1,0 +1,305 @@
+{
+  "inventory_id": "PULSE-XCODE-SHELL-20261024T221753+1100",
+  "record_kind": "PULSE_XCODE_SHELL_INVENTORY",
+  "record_version": "V0",
+  "captured_at": "2026-10-24T22:17:53+11:00",
+  "observer": {
+    "seat": "Codex via Xcode MCP",
+    "host": "macstudio.local",
+    "macos_version": "26.6.2",
+    "xcode_version": "Xcode 27.1 (27A9275)",
+    "device_runtime": "NOT_SEARCHED"
+  },
+  "authority": {
+    "scope": "read-only Xcode shell inventory",
+    "authorization": "User-authorized Capture + evidence",
+    "prohibited": [
+      "build",
+      "test",
+      "dependency resolution",
+      "Xcode/project mutation",
+      "signing mutation",
+      "provider connection",
+      "provider command",
+      "Notion write",
+      "Caddyshack write",
+      "Linear write"
+    ],
+    "evidence_destination": "nexus-infinity/pulse/docs/evidence/PULSE_XCODE_SHELL_INVENTORY/"
+  },
+  "source_context": {
+    "xcode_project_path": "/Users/field/Library/Developer/Xcode/UntitledProjects/Untitled Project/Untitled Project.xcodeproj",
+    "xcode_project_kind": "Xcode project",
+    "local_git_root": "/Users/field",
+    "local_git_branch": "main",
+    "local_git_commit": "584caf2ca13e270bf6fdeb2114b3bdb260513125",
+    "local_git_dirty_at_capture": true,
+    "local_git_dirty_scope": "Pre-existing changes observed in the /Users/field worktree; attribution to this capture is none.",
+    "designated_pulse_repository": "nexus-infinity/pulse",
+    "designated_pulse_branch": "main",
+    "designated_pulse_commit": "1b333352c26a079cfb4db3e57113741f84f24670",
+    "export_spec_path": "docs/evidence/PULSE_XCODE_SHELL_INVENTORY/PULSE_XCODE_SHELL_INVENTORY_EXPORT_SPEC_V0.md",
+    "export_spec_blob_sha": "d5245cd45cc105034ff2ed6959b6ae3d6472e442"
+  },
+  "capture_method": {
+    "xcode_tools": [
+      "XcodeListTargets",
+      "XcodeGlob",
+      "XcodeListSchemes",
+      "XcodeGrep",
+      "GetTargetBuildSettings"
+    ],
+    "local_metadata": [
+      "date -Iseconds",
+      "hostname",
+      "sw_vers -productVersion",
+      "xcodebuild -version",
+      "git rev-parse",
+      "git status --porcelain",
+      "shasum -a 256"
+    ],
+    "build_or_test_run": false,
+    "dependency_resolution_run": false,
+    "provider_runtime_run": false
+  },
+  "inventory": {
+    "project": {
+      "state": "OBSERVED_PRESENT",
+      "product": "PULSE.app",
+      "internal_application_target_name": "MyApp",
+      "active_scheme": "MatterExtension",
+      "schemes": [
+        {
+          "name": "MatterExtension",
+          "active": true,
+          "shared": true
+        },
+        {
+          "name": "MyApp",
+          "active": false,
+          "shared": true
+        }
+      ],
+      "targets": [
+        {
+          "name": "MyApp",
+          "state": "OBSERVED_PRESENT",
+          "product_type": "Application",
+          "product_type_identifier": "com.apple.product-type.application",
+          "product": "PULSE.app"
+        },
+        {
+          "name": "MatterExtension",
+          "state": "OBSERVED_PRESENT",
+          "product_type": "App Extension",
+          "product_type_identifier": "com.apple.product-type.extensionkit-extension",
+          "product": "MatterExtension.appex",
+          "role": "Reserved scaffold only; not provider-state owner, ontology owner, commissioning evidence, or communication evidence."
+        }
+      ]
+    },
+    "dependencies": {
+      "google_home_sdk": "NOT_EVIDENCED",
+      "google_home_types": "NOT_EVIDENCED",
+      "swift_package_manifest_in_project_scope": "OBSERVED_ABSENT",
+      "package_resolution": "NOT_SEARCHED",
+      "dependency_installation": "NOT_SEARCHED",
+      "runtime_linkage": "NOT_SEARCHED"
+    },
+    "entitlements_and_signing": {
+      "app_groups": "NOT_EVIDENCED",
+      "app_attest": "NOT_EVIDENCED",
+      "app_entitlements_setting": "",
+      "extension_entitlements_setting": "",
+      "signing_style_app": "Automatic",
+      "signing_style_extension": "Automatic",
+      "development_team_setting_present": true,
+      "provisioning_profile_app": "",
+      "provisioning_profile_extension": "",
+      "effective_signed_entitlements": "NOT_SEARCHED",
+      "physical_device_registration": "NOT_SEARCHED"
+    },
+    "provider_adapter": {
+      "google_home_adapter": "NOT_EVIDENCED",
+      "home_connect": "NOT_EVIDENCED",
+      "home_restore_session": "NOT_EVIDENCED",
+      "oauth_flow": "NOT_EVIDENCED",
+      "structure_room_device_observation": "NOT_EVIDENCED",
+      "source_search_matches": [
+        "MatterExtension/MatterExtension.swift",
+        "PULSE/HomeOverviewView.swift"
+      ],
+      "interpretation": "Matches for Matter are scaffold/UI references only; no Google Home API reference was observed."
+    },
+    "observation_support": {
+      "placeholder_ui": "OBSERVED_PRESENT",
+      "placeholder_ui_path": "PULSE/HomeOverviewView.swift",
+      "pulse_record_models": "OBSERVED_PRESENT",
+      "pulse_record_path": "PULSE/Models/PULSERecords.swift",
+      "provider_backed_observation": "NOT_EVIDENCED",
+      "raw_provider_evidence_ingestion": "NOT_EVIDENCED",
+      "receipt_persistence": "NOT_EVIDENCED",
+      "candidate_normalization": "NOT_EVIDENCED",
+      "physical_observation": "NOT_SEARCHED"
+    },
+    "command_surfaces": {
+      "provider_commands": "NOT_EVIDENCED",
+      "automations": "NOT_EVIDENCED",
+      "device_mutation": "NOT_EVIDENCED",
+      "action_receipt_model": "OBSERVED_PRESENT",
+      "action_receipt_runtime": "NOT_EVIDENCED",
+      "command_authority": "HOLD"
+    },
+    "build_and_runtime": {
+      "build": "NOT_RUN",
+      "test": "NOT_RUN",
+      "simulator": "NOT_SEARCHED",
+      "physical_device": "NOT_SEARCHED",
+      "provider_runtime": "NOT_SEARCHED",
+      "runtime_admission": "HOLD"
+    },
+    "gates": {
+      "X1": {
+        "status": "PASS_READ_ONLY_INVENTORY",
+        "source": "Current coordination record",
+        "evidence": "This bounded capture"
+      },
+      "X2": {
+        "status": "COMPLETE",
+        "source": "Current coordination record",
+        "evidence": "Accepted probe boundary"
+      },
+      "A": {
+        "status": "OPEN",
+        "source": "https://app.notion.com/p/ab7fb5095ff14291a2ddc3e5153be7a3",
+        "evidence": "Serialization decisions remain open"
+      },
+      "B": {
+        "status": "BLOCKED",
+        "source": "Current Gate A state",
+        "evidence": "Gate A serialization and ontology decisions incomplete"
+      },
+      "C": {
+        "status": "BLOCKED",
+        "source": "Current Gate A state",
+        "evidence": "Schema validation/promotion not authorized"
+      },
+      "D": {
+        "status": "BLOCKED",
+        "source": "Current Gate A state",
+        "evidence": "Runtime admission not authorized"
+      }
+    },
+    "status_snapshot": {
+      "serialization": "OPEN",
+      "implementation": "NOT_AUTHORIZED",
+      "observation": "HOLD",
+      "provider_command_authority": "HOLD",
+      "schema_promotion": "HOLD",
+      "runtime_admission": "HOLD",
+      "files_changed_during_capture": "NONE"
+    }
+  },
+  "files_inspected": [
+    {
+      "path": "Untitled Project.xcodeproj/project.pbxproj",
+      "role": "Xcode project configuration",
+      "sha256": "62bab33dbab63bcb46557a58c8852b84191263cd2f5cd5708d647eb656f85144",
+      "changed_during_capture": false
+    },
+    {
+      "path": "PULSE/PULSEApp.swift",
+      "role": "Application entry point",
+      "sha256": "35ed98f629fb09890a3c2ad960ae04e6dbb065cd70f6af44a07112e2dfc1a1b2",
+      "changed_during_capture": false
+    },
+    {
+      "path": "PULSE/HomeOverviewView.swift",
+      "role": "Placeholder observation UI",
+      "sha256": "6b90295a4eba8a269af60f0c69f1471698a76009ba9804adcc3d1fb32f8cf580",
+      "changed_during_capture": false
+    },
+    {
+      "path": "PULSE/Models/PULSERecords.swift",
+      "role": "Provider-neutral model draft",
+      "sha256": "00333bb48d6f9114d802d3bf4745e10e9d0129a2963fc14d4dfc76b46ae8f28d",
+      "changed_during_capture": false
+    },
+    {
+      "path": "MatterExtension/Info.plist",
+      "role": "Extension metadata",
+      "sha256": "5fca9277589e7f0aa529c3e63a35569868816cf1fc663fb74a80cabe50340a86",
+      "changed_during_capture": false
+    },
+    {
+      "path": "MatterExtension/MatterExtension.swift",
+      "role": "Extension scaffold",
+      "sha256": "49b420e952161a49fcd4e454ed85f77dc730155ed6c035f82e6a68ec842c28b5",
+      "changed_during_capture": false
+    }
+  ],
+  "files_changed": [],
+  "evidence_refs": [
+    {
+      "id": "E1",
+      "kind": "GitHub specification",
+      "ref": "https://github.com/nexus-infinity/pulse/blob/main/docs/evidence/PULSE_XCODE_SHELL_INVENTORY/PULSE_XCODE_SHELL_INVENTORY_EXPORT_SPEC_V0.md",
+      "observed_ref": "main",
+      "blob_sha": "d5245cd45cc105034ff2ed6959b6ae3d6472e442"
+    },
+    {
+      "id": "E2",
+      "kind": "Xcode target inventory",
+      "ref": "XcodeListTargets output",
+      "observed_at": "2026-10-24T22:17:53+11:00"
+    },
+    {
+      "id": "E3",
+      "kind": "Xcode file inventory",
+      "ref": "XcodeGlob output",
+      "observed_at": "2026-10-24T22:17:53+11:00"
+    },
+    {
+      "id": "E4",
+      "kind": "Xcode source search",
+      "ref": "XcodeGrep provider and command searches",
+      "observed_at": "2026-10-24T22:17:53+11:00"
+    },
+    {
+      "id": "E5",
+      "kind": "Xcode build settings",
+      "ref": "GetTargetBuildSettings for MyApp and MatterExtension",
+      "observed_at": "2026-10-24T22:17:53+11:00"
+    },
+    {
+      "id": "E6",
+      "kind": "Host metadata",
+      "ref": "macstudio.local / macOS 26.6.2 / Xcode 27.1 (27A9275)",
+      "observed_at": "2026-10-24T22:17:53+11:00"
+    },
+    {
+      "id": "E7",
+      "kind": "Local source metadata",
+      "ref": "/Users/field git root, main, 584caf2ca13e270bf6fdeb2114b3bdb260513125",
+      "observed_at": "2026-10-24T22:17:53+11:00"
+    }
+  ],
+  "limitations": [
+    "No build or test was run.",
+    "No dependency resolution or installation was run.",
+    "No effective signed entitlements were inspected.",
+    "No physical device or simulator session was searched.",
+    "No Google Home account, household, hub, or provider runtime was searched.",
+    "The local /Users/field worktree was already dirty; unrelated changes were observed and not attributed to this capture.",
+    "The current project is under the /Users/field git root; no separate project-local repository identity was observed.",
+    "No claim is made that a missing source search result proves global absence outside the inspected Xcode project scope."
+  ],
+  "publication": {
+    "specification": "https://github.com/nexus-infinity/pulse/blob/main/docs/evidence/PULSE_XCODE_SHELL_INVENTORY/PULSE_XCODE_SHELL_INVENTORY_EXPORT_SPEC_V0.md",
+    "destination_repository": "nexus-infinity/pulse",
+    "destination_path": "docs/evidence/PULSE_XCODE_SHELL_INVENTORY/PULSE_XCODE_SHELL_INVENTORY_20261024T221753+1100.json",
+    "notion_pointer": "NOT_PUBLISHED",
+    "caddyshack_pointer": "NOT_PUBLISHED",
+    "linear_pointer": "NOT_PUBLISHED"
+  }
+}
